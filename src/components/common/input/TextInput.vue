@@ -5,11 +5,13 @@
         :type="type" 
         :placeholder="placeholder"
         :rule="rule"
+        :lengthLimit="lengthLimit"
         clearable=clearable
         v-model="content"
-        class="text-input" 
+        class="text-input"
+        @blur="emitContent" 
         />
-    </div> 
+    </div>
 </template>
 
 <script>
@@ -21,21 +23,10 @@ export default {
             content:''
         }
     },
-    props:['clearable','type','placeholder','rule'],
+    props:['clearable','type','placeholder','rule',"lengthLimit"],
     methods:{
-            handlerulg() {
-            //验证输入是否符合正则表达式
-            const rule = new RegExp(this.rule)
-            if(rule.test(this.content)) {
-                //符合正则表达式
-                this.$emit('inputChange',this.content)
-            }
-        }
-    },
-    watch:{
-        //输入内容改变时调用
-        content() {
-            this.handlerulg();
+        emitContent() {
+            this.$emit('emitContent',this.content);
         }
     }
 }
