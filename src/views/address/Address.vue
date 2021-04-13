@@ -1,0 +1,268 @@
+<template>
+  <div id="address">
+    <nav-bar title="地址列表">
+      <template #left>
+        <icon name="arrow-left" size="6vw" @click="$router.back()" />
+      </template>
+    </nav-bar>
+    <div class="addressList">
+      <div class="address_empty" v-if="user_address_list.length === 0">
+        <span>您还没有添加收件地址</span>
+      </div>
+      <ul class="address_not_empty" v-else>
+        <li v-for="item in user_address_list" :key="item.id" @click="onChangeDefault(item.id)">
+          <icon class="default_icon" size="5vw" name="star-o" v-if="item.isDefault === 1" />
+          <div class="user_info">
+            <span>{{item.realname}}</span>
+            <span>{{item.telephone}}</span>
+          </div>
+          <div class="address_info">
+            <span>{{item.university_name + item.address_details}}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <popup
+      v-model="address_info_edit"
+      closeable
+      close-icon="close"
+      position="bottom"
+      :style="{ height: '100%' }"
+    >
+      <van-form @submit="onSubmit" class="addressForm">
+        <field
+          v-model="realname"
+          label="姓名"
+          placeholder="收件人姓名"
+          :rules="[{ required: true, message: '请填写姓名' }]"
+          required
+          clearable
+          style="font-size: 4vw"
+        />
+        <field
+          v-model="telephone"
+          label="联系电话"
+          placeholder="收件人电话"
+          :rules="[{ required: true, message: '请填写联系电话' }]"
+          required
+          clearable
+          style="font-size: 4vw"
+        />
+        <field
+          v-model="university_name"
+          label="学校名称"
+          placeholder="请输入学校名称，如：某某大学"
+          :rules="[{ required: true, message: '请填写学校名称' }]"
+          required
+          clearable
+          style="font-size: 4vw"
+        />
+        <field
+          v-model="address_details"
+          label="详细地址"
+          placeholder="请输入具体的校区，楼号，寝室号"
+          :rules="[{ required: true, message: '请填写详细地址' }]"
+          required
+          clearable
+          style="font-size: 4vw"
+        />
+        <!--是否设为默认地址-->
+        <cell title="是否设为默认地址" icon="star-o">
+          <template #right-icon>
+            <van-switch v-model="isDefault" active-color="#ffd300" size="5vw" />
+          </template>
+        </cell>
+        <van-button
+          round
+          size="large"
+          native-type="submit"
+          color="#ffd300"
+          text="保存"
+          @click="address_info_edit = true"
+          style="font-size: 4vw; margin-top: 2vw"
+        />
+      </van-form>
+    </popup>
+    <van-button
+      round
+      size="large"
+      color="#ffd300"
+      text="新增地址"
+      class="addButton"
+      @click="address_info_edit = true"
+      style="font-size: 4vw; margin-top: 2vw;"
+    />
+  </div>
+</template>
+
+<script>
+import {
+  NavBar,
+  Icon,
+  Button as VanButton,
+  Form as VanForm,
+  Popup,
+  Field,
+  Cell,
+  Switch as VanSwitch,
+  Toast
+} from 'vant'
+import userRequest from 'network/http'
+export default {
+  name: 'Address',
+  inject: ['reload'],
+  data() {
+    return {
+      user_address_list: [],
+      address_info_edit: false,
+      realname: '',
+      telephone: '',
+      university_name: '',
+      address_details: '',
+      isDefault: false
+    }
+  },
+  components: {
+    NavBar,
+    Icon,
+    VanButton,
+    Popup,
+    Field,
+    VanForm,
+    Cell,
+    VanSwitch
+  },
+  methods: {
+    //获取用户地址列表
+    getUserAddress() {
+      userRequest
+        .get('/user/getUserAddress', {
+          params: { uid: localStorage.getItem('ID') },
+          headers: { Authorization: localStorage.getItem('TOKEN') }
+        })
+        .then(res => {
+          console.log(res.data)
+          if (res.data) {
+            this.user_address_list = res.data
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //改变默认地址
+    onChangeDefault(id) {
+      const params = {
+        default_address_id: id,
+        user_id: localStorage.getItem('ID')
+      }
+      userRequest
+        .post('/user/changeDefaultAddress', params)
+        .then(res => {
+          if (res.data.successMessage === 'UPDATE_SUCCESS' && res.data.statusCode === 200) {
+            this.reload()
+            Toast({
+              type: 'success',
+              message: '设置默认地址成功'
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //新增收件地址
+    onSubmit() {
+      const teltphoneRule = /^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/
+      //校验输入的信息
+      if (!this.realname || !this.telephone || !this.university_name || !this.address_details) {
+        Toast({
+          type: 'fail',
+          message: '信息不完整'
+        })
+        return
+      } else if (!teltphoneRule.test(this.telephone)) {
+        Toast({
+          type: 'fail',
+          message: '联系电话不符合'
+        })
+        return
+      }
+      const add_address = {
+        realname: this.realname,
+        telephone: this.telephone,
+        university_name: this.university_name,
+        address_details: this.address_details,
+        isDefault: this.isDefault,
+        uid: localStorage.getItem('ID')
+      }
+      userRequest
+        .post('/user/addAddress', add_address, {
+          headers: { Authorization: localStorage.getItem('TOKEN') }
+        })
+        .then(res => {
+          if (res.data.successMessage === 'ADD_SUCCESS' && res.data.statusCode === 200) {
+            Toast({
+              type: 'success',
+              message: '添加成功',
+              onClose: () => {
+                this.address_info_edit = false
+                this.reload()
+              }
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  },
+  created() {
+    this.getUserAddress()
+  }
+}
+</script>
+
+<style>
+.address_empty {
+  margin: 2vw 0;
+  text-align: center;
+  font-size: 4vw;
+}
+.address_not_empty {
+  margin: 2vw 0;
+  padding: 0 2vw;
+}
+.address_not_empty li {
+  padding: 3vw;
+  margin-bottom: 2vw;
+  background-color: #fff;
+  border-radius: 3vw;
+}
+.default_icon {
+  float: right;
+}
+.user_info {
+  font-size: 5vw;
+  margin-bottom: 2vw;
+}
+.user_info :nth-child(1) {
+  margin-right: 2vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.address_info {
+  font-size: 4vw;
+}
+.addressForm {
+  margin-top: 10vw;
+  padding: 0 2vw;
+  border-radius: 3vw;
+}
+.addButton {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+</style>
