@@ -1,5 +1,5 @@
 <template>
-  <div id="usertask">
+  <div id="usertask" class="usertask">
     <nav-bar title="任务信息" />
     <tabs
       type="line"
@@ -9,25 +9,33 @@
       color="#ffd300"
       title-active-color="#ffd300"
     >
-      <tab title="发布的任务">
+      <tab title="发布的任务" class="releaseTask">
         <div class="empty" v-if="MyReleaseTask.length === 0">
           <span>您还未发布任何任务</span>
         </div>
         <list
           v-else
           v-model="releaseTaskLoading"
+          :error.sync="error"
+          error-text="请求失败，点击重新加载"
           :finished="releaseTaskFinished"
           finished-text="没有更多了"
+          offset="400"
           @load="getMyReleaseTask"
         >
-          <div v-for="(item,index) in MyReleaseTask" :key="item.tid" class="taskItem">
+          <div
+            v-for="(item,index) in MyReleaseTask"
+            :key="item.tid"
+            class="taskItem"
+            @click="$router.push({path:'/task/'+item.tid})"
+          >
             <div class="itemHeader">
               <span class="serial_number">{{index+1}}</span>
               <span class="task_title">{{item.title}}</span>
               <tag v-if="item.status === 1" color="#7232dd">闲置</tag>
-              <tag v-else-if="item.status === 2" type="primary">被接取</tag>
-              <tag v-else-if="item.status === 3" type="success">已完成</tag>
-              <tag v-else type="danger">已过期</tag>
+              <tag v-else-if="item.status === 2" type="primary">接取</tag>
+              <tag v-else-if="item.status === 3" type="success">完成</tag>
+              <tag v-else type="danger">过期</tag>
             </div>
             <div class="itemBody">
               <span class="countDown">
@@ -42,6 +50,13 @@
                   </template>
                 </count-down>
               </span>
+
+              <div class="task_type_label">
+                <tag v-if="item.type === '代取快递'" color="#7232dd" plain>代取快递</tag>
+                <tag v-else-if="item.type === '代打印'" color="#7232dd" plain>代打印</tag>
+                <tag v-else-if="item.type === '代购物'" color="#7232dd" plain>代购物</tag>
+                <tag v-else color="#7232dd" plain>其他</tag>
+              </div>
             </div>
           </div>
         </list>
@@ -79,7 +94,8 @@ export default {
       releaseTaskLoading: false,
       releaseTaskFinished: false,
       receiveTaskLoading: false,
-      receiveTaskFinished: false
+      receiveTaskFinished: false,
+      error: false
     }
   },
   components: {
@@ -101,13 +117,19 @@ export default {
         .then(res => {
           console.log(res.data)
           if (res.data) {
-            this.MyReleaseTask = res.data
+            //加入数组
+            res.data.forEach(item => {
+              this.MyReleaseTask.push(item)
+            })
+
             this.releaseTaskLoading = false
+            //检查是否加载完毕
             this.releaseTaskFinished = true
           }
         })
         .catch(err => {
           console.log(err)
+          this.error = true
         })
     },
     //获取用户接取的任务
@@ -120,6 +142,13 @@ export default {
 </script >
 
 <style>
+.usertask {
+  height: 100%;
+  overflow: scroll;
+}
+.releaseTask {
+  height: 100%;
+}
 .taskItem {
   padding: 2vw;
   margin: 2vw;
@@ -141,6 +170,8 @@ export default {
   margin-right: 5vw;
 }
 .task_title {
+  height: 100%;
+  text-align: center;
   font-size: 4.5vw;
   overflow: hidden;
 }
@@ -167,5 +198,9 @@ export default {
   text-align: center;
   border-radius: 50%;
   background-color: #ee0a24;
+}
+.task_type_label {
+  margin-top: 2vw;
+  font-size: 4vw;
 }
 </style>

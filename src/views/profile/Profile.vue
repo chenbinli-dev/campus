@@ -71,9 +71,9 @@ export default {
     },
     getUserInfo() {
       userRequest
-        .get('/user/getUserByUsername/', {
+        .get('/user/getUserByUid/', {
           params: {
-            username: localStorage.getItem('USERNAME')
+            uid: localStorage.getItem('ID')
           }
         })
         .then(res => {
@@ -81,10 +81,12 @@ export default {
           //将用户是否有支付密码的状态存入仓库
           if (res.data.pay_password) {
             this.$store.commit('pay_password_status')
-          } else if (res.data.right === 2) {
+          } 
+          if (res.data.right === 2) {
             //改变仓库中用户权限状态
             this.$store.commit('change_user_right')
-          } else if (parseFloat(res.data.balance) !== 0) {
+          } 
+          if (parseFloat(res.data.balance) !== 0) {
             //改变仓库中用户余额状态
             this.$store.commit('banalce_status')
           }

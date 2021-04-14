@@ -14,7 +14,9 @@ const EditPassword = () => import('views/profile/EditPassword')
 const Home = () => import('views/home/Home')
 //用户任务、消息、设置
 const UserTask = () => import('views/usertask/UserTask')
-const ReleaseTask = () => import('views/task/releaseTask')
+
+const ReleaseTask = () => import('views/task/ReleaseTask')
+const TaskDetails = () => import('views/task/TaskDetails')
 const Message = () => import('views/message/Message')
 const Setting = () => import('views/setting/Setting')
 //学生认证
@@ -154,6 +156,14 @@ const routes = [
         //用户发布任务界面
         path: '/user/releaseTask',
         component: ReleaseTask,
+        meta: {
+            needLogin: true
+        }
+    },
+    {
+        //任务详情页面
+        path: '/task/:tid',
+        component: TaskDetails,
         meta: {
             needLogin: true
         }

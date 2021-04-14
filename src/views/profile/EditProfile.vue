@@ -144,10 +144,10 @@ export default {
   methods: {
     //获取用户信息
     getUserInfo () {
-      userRequest.get('/user/getUserByUsername/',
+      userRequest.get('/user/getUserByUid',
         {
           params: {
-            username: localStorage.getItem('USERNAME')
+            uid: localStorage.getItem('ID')
           }
         })
         .then(res => {
