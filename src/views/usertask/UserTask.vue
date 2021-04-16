@@ -117,12 +117,11 @@ export default {
         .then(res => {
           console.log(res.data)
           if (res.data) {
-            //加入数组
+            //判断任务是否过期，更改任务状态并加入数组
             res.data.forEach(item => {
               this.MyReleaseTask.push(item)
+              this.releaseTaskLoading = true
             })
-
-            this.releaseTaskLoading = false
             //检查是否加载完毕
             this.releaseTaskFinished = true
           }
@@ -133,7 +132,24 @@ export default {
         })
     },
     //获取用户接取的任务
-    getMyReceiveTask() {}
+    getMyReceiveTask() {},
+    //更新任务状态为过期
+    updateTaskStatus(tid, status) {
+      const requestBody = {
+        tid: tid,
+        status: status
+      }
+      userRequest
+        .post('/task/updateTaskStatus', requestBody)
+        .then(res => {
+          if (res.data.message === 'UPDATE_SUCCESS' && res.data.statusCode === 200) {
+            return res.data.statusCode
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
   },
   created() {
     this.getMyReleaseTask()

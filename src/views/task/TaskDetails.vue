@@ -94,6 +94,8 @@
         <span v-if="taskInfo.status === 2">
           <icon name="chat-o" size="8vw" />
         </span>
+        <span v-if="taskInfo.status === 3">已完成</span>
+        <span v-if="taskInfo.status === 4">已过期</span>
       </div>
     </div>
   </div>

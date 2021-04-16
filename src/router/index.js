@@ -17,6 +17,8 @@ const UserTask = () => import('views/usertask/UserTask')
 
 const ReleaseTask = () => import('views/task/ReleaseTask')
 const TaskDetails = () => import('views/task/TaskDetails')
+const Category = () => import('views/task/Category')
+
 const Message = () => import('views/message/Message')
 const Setting = () => import('views/setting/Setting')
 //学生认证
@@ -164,6 +166,14 @@ const routes = [
         //任务详情页面
         path: '/task/:tid',
         component: TaskDetails,
+        meta: {
+            needLogin: true
+        }
+    },
+    {
+        //任务分类页
+        path: '/category',
+        component: Category,
         meta: {
             needLogin: true
         }

@@ -16,6 +16,7 @@
         color="linear-gradient(to right, #ff6034, #ee0a24)"
         size="large"
         class="button"
+        @click="toGetTask"
       >接取任务</van-button>
     </div>
     <!--发布任务类型选择-->
@@ -79,7 +80,7 @@
 
 <script>
 const Tabbar = () => import('components/common/tabbar/Tabbar')
-import { NavBar, Button as VanButton, NoticeBar, Popup, Toast } from 'vant'
+import { NavBar, Button as VanButton, NoticeBar, Popup, Toast, Dialog } from 'vant'
 export default {
   name: 'Home',
   data() {
@@ -92,7 +93,8 @@ export default {
     NavBar,
     VanButton,
     NoticeBar,
-    Popup
+    Popup,
+    [Dialog.Component.name]: Dialog.Component
   },
   methods: {
     //判断用户身份、是否有支付密码、是否余额为0
@@ -118,6 +120,16 @@ export default {
       } else {
         this.typeSelectShow = true
       }
+    },
+    //接取任务
+    toGetTask() {
+      Dialog.alert({
+        title: '注意',
+        message: '接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'
+      }).then(() => {
+        // on close
+        this.$router.push('/category')
+      })
     }
   }
 }
