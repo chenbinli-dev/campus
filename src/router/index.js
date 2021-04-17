@@ -17,6 +17,7 @@ const UserTask = () => import('views/usertask/UserTask')
 
 const ReleaseTask = () => import('views/task/ReleaseTask')
 const TaskDetails = () => import('views/task/TaskDetails')
+const ReceiveTaskStatus = () => import('views/task/ReceiveTaskStatus')
 const Category = () => import('views/task/Category')
 
 const Message = () => import('views/message/Message')
@@ -171,6 +172,14 @@ const routes = [
         }
     },
     {
+        //任务代跑状态页
+        path: '/task/receiveTask/:tid',
+        component: ReceiveTaskStatus,
+        meta: {
+            needLogin: true
+        }
+    },
+    {
         //任务分类页
         path: '/category',
         component: Category,
@@ -191,7 +200,6 @@ const originalPush = Router.prototype.push
 Router.prototype.push = function push (location) {
     return originalPush.call(this, location).catch(err => err)
 }
-
 //监听路由跳转，判断页面是否需要用户登录
 router.beforeEach((to, from, next) => {
     if (to.meta.needLogin === true && localStorage.getItem('TOKEN')) {

@@ -25,11 +25,27 @@
 
     <!--任务详情主体-->
     <cell-group style="margin-top:2vw">
+      <cell v-if="taskInfo.owner_id != uid" title="发布用户" size="large">
+        <van-image
+          width="8vw"
+          height="8vw"
+          radius="50%"
+          lazy-load:true
+          show-loading
+          :src="releaseUser.avatar_url"
+        />
+      </cell>
       <cell title="任务标题" :value="taskInfo.title" size="large" />
       <cell title="任务描述" :value="taskInfo.description" size="large" />
       <!--取件码-->
       <collapse v-if="taskInfo.type === '代取快递'" v-model="activeName">
-        <collapse-item title="取件码" name="1" size="large" @click="judgeUser">
+        <collapse-item
+          title="取件码"
+          name="1"
+          size="large"
+          :disabled="uid != this.taskInfo.owner_id"
+          @click="getFiles"
+        >
           <van-image
             width="10rem"
             height="10rem"
@@ -42,7 +58,13 @@
       </collapse>
       <!--打印文件-->
       <collapse v-if="taskInfo.type === '代打印'" v-model="activeName">
-        <collapse-item title="待打印文件" name="1" size="large" @click="judgeUser">
+        <collapse-item
+          title="待打印文件"
+          name="1"
+          size="large"
+          :disabled="uid != this.taskInfo.owner_id"
+          @click="getFiles"
+        >
           <ul class="file_list">
             <li v-for="(val,index) in taskInfo.upload_file_url" :key="index">
               <a :href="val" download>
@@ -55,8 +77,8 @@
       </collapse>
     </cell-group>
 
-    <!--任务进度条-->
-    <div class="task_step">
+    <!--任务进度条，只有被接取任务才有-->
+    <div class="task_step" v-if="taskInfo.status === 2 ||taskInfo.status === 3">
       <steps :active="active" direction="vertical" active-color="#38f" class="steps">
         <step>
           <p>任务发布</p>
@@ -90,12 +112,13 @@
         </count-down>
       </div>
       <div class="show_button">
-        <span v-if="taskInfo.status === 1">闲置中</span>
-        <span v-if="taskInfo.status === 2">
+        <span v-if="uid != this.taskInfo.owner_id" @click="receiveTask">接取</span>
+        <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 1">闲置中</span>
+        <span v-if="taskInfo.status === 2" @click="chat">
           <icon name="chat-o" size="8vw" />
         </span>
-        <span v-if="taskInfo.status === 3">已完成</span>
-        <span v-if="taskInfo.status === 4">已过期</span>
+        <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 3">已完成</span>
+        <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 4">已过期</span>
       </div>
     </div>
   </div>
@@ -121,6 +144,8 @@ export default {
   name: 'TaskDetails',
   data() {
     return {
+      uid: localStorage.getItem('ID'),
+      releaseUser: {},
       taskInfo: {},
       activeName: [],
       active: null
@@ -159,6 +184,10 @@ export default {
         .then(res => {
           res.data.createAt = this.utc2beijing(res.data.createAt)
           this.taskInfo = res.data
+          //如果是非发布用户，则获取发布用户的信息
+          if (localStorage.getItem('ID') != this.taskInfo.owner_id) {
+            this.getReleaseUser(this.taskInfo.owner_id)
+          }
           //改变任务进度显示
           if (this.taskInfo.status === 1) {
             this.active = 0
@@ -172,16 +201,57 @@ export default {
           console.log(err)
         })
     },
-    //判断用户身份是否是任务的发布者
-    judgeUser() {
+    //获取任务文件
+    getFiles() {
       if (localStorage.getItem('ID') === this.taskInfo.owner_id) {
         this.activeName.push('1')
       } else {
         Toast({
           type: 'fail',
-          message: '只有接取后才能查看'
+          message: '接取任务后才能查看'
         })
       }
+    },
+    //获取发布用户信息
+    getReleaseUser(uid) {
+      userRequest
+        .get('/user/getUserByUid', {
+          params: { uid: uid }
+        })
+        .then(res => {
+          this.releaseUser = res.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //用户接取任务
+    receiveTask() {
+      const request = {
+        tid: this.taskInfo.tid,
+        owner_id:this.taskInfo.owner_id,
+        receiver_id: parseInt(this.uid)
+      }
+      userRequest
+        .post('/task/receiveTask', request)
+        .then(res => {
+          if (res.data.statusCode === 200 && res.data.message === 'RECEIVE_SUCCESS') {
+            //接取成功
+            Toast({
+              type: 'success',
+              message: '接取任务成功'
+            })
+          } else {
+            //接取失败
+            Toast({
+              type: 'fail',
+              message: '接取任务失败'
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   },
   created() {
