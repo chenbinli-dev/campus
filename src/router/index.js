@@ -12,15 +12,16 @@ const EditProfile = () => import('views/profile/EditProfile')
 const EditPassword = () => import('views/profile/EditPassword')
 
 const Home = () => import('views/home/Home')
-//用户任务、消息、设置
+//用户任务
 const UserTask = () => import('views/usertask/UserTask')
-
 const ReleaseTask = () => import('views/task/ReleaseTask')
 const TaskDetails = () => import('views/task/TaskDetails')
 const ReceiveTaskStatus = () => import('views/task/ReceiveTaskStatus')
 const Category = () => import('views/task/Category')
-
+//用户聊天，接受消息
 const Message = () => import('views/message/Message')
+const Chat = () => import('views/message/Chat')
+
 const Setting = () => import('views/setting/Setting')
 //学生认证
 const Verify = () => import('views/verify/Verify')
@@ -79,6 +80,14 @@ const routes = [
         //消息界面
         path: '/user/message',
         component: Message,
+        meta: {
+            needLogin: true
+        }
+    },
+    {
+        //用户聊天界面
+        path: '/chat/:uid',
+        component: Chat,
         meta: {
             needLogin: true
         }

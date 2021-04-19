@@ -7,6 +7,21 @@
       </template>
     </nav-bar>
     <div class="task_number">代跑编号：{{process.id}}</div>
+    <div class="releaser">
+      <div class="releaser_avatar">
+        <van-image
+          width="15vw"
+          height="15vw"
+          radius="50%"
+          lazy-load:true
+          show-loading
+          :src="releaseUser.avatar_url"
+        />
+      </div>
+      <div class="releaser_chat" @click="$router.push({path:'/chat/' + releaseUser.uid})">
+        <icon name="chat-o" size="10vw" color="#ffd300" />发起聊天
+      </div>
+    </div>
     <div class="taskFile">
       <div class="FileBox_title" v-if="taskInfo.type === '代取快递'">取件码</div>
       <ul class="file_list">
@@ -107,16 +122,6 @@
         </step>
       </steps>
     </div>
-    <cell title="发布用户" size="large" class="releaser">
-      <van-image
-        width="8vw"
-        height="8vw"
-        radius="50%"
-        lazy-load:true
-        show-loading
-        :src="releaseUser.avatar_url"
-      />
-    </cell>
     <!--发布用户详情-->
     <cell-group style="margin-top:2vw;margin-bottom:15vw">
       <cell title="收件人" :value="taskInfo.addressee" size="large" />
@@ -274,6 +279,28 @@ export default {
   font-size: 4vw;
   margin-top: 12vw;
 }
+.releaser {
+  width: 100%;
+  height: 20vw;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2vw;
+}
+.releaser_avatar,
+.releaser_chat {
+  width: 50%;
+  height: 100%;
+  color: #ffd300;
+  font-size: 4vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.releaser_avatar {
+  border-right: dashed 0.1vw;
+}
 .taskFile {
   padding: 2vw;
   margin-bottom: 2vw;
@@ -284,7 +311,7 @@ export default {
   margin-bottom: 2vw;
   color: black;
 }
-.file_list li img {
+.file_list img {
   border-radius: 1vw;
 }
 .process_title {

@@ -21,6 +21,16 @@
           <tag v-else type="danger">过期</tag>
         </template>
       </cell>
+      <cell v-if="taskInfo.status === 2 || taskInfo.status === 3" title="代跑用户" size="large" class="receiver">
+        <van-image
+          width="8vw"
+          height="8vw"
+          radius="50%"
+          lazy-load:true
+          show-loading
+          :src="receiveUser.avatar_url"
+        />
+      </cell>
     </cell-group>
 
     <!--任务详情主体-->
@@ -114,7 +124,7 @@
       <div class="show_button">
         <span v-if="uid != this.taskInfo.owner_id" @click="receiveTask">接取</span>
         <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 1">闲置中</span>
-        <span v-if="taskInfo.status === 2" @click="chat">
+        <span v-if="taskInfo.status === 2" @click="$router.push({path:'/chat/'+ receiveUser.uid})">
           <icon name="chat-o" size="8vw" />
         </span>
         <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 3">已完成</span>
@@ -146,6 +156,7 @@ export default {
     return {
       uid: localStorage.getItem('ID'),
       releaseUser: {},
+      receiveUser:{},
       taskInfo: {},
       activeName: [],
       active: null
@@ -184,9 +195,11 @@ export default {
         .then(res => {
           res.data.createAt = this.utc2beijing(res.data.createAt)
           this.taskInfo = res.data
-          //如果是非发布用户，则获取发布用户的信息
+          //如果是非发布用户，则获取发布用户的信息;否则就获取接取用户的信息
           if (localStorage.getItem('ID') != this.taskInfo.owner_id) {
             this.getReleaseUser(this.taskInfo.owner_id)
+          } else {
+            this.getReceiveUser(this.taskInfo.tid)
           }
           //改变任务进度显示
           if (this.taskInfo.status === 1) {
@@ -225,11 +238,24 @@ export default {
           console.log(err)
         })
     },
+    //获取接取用户信息
+    getReceiveUser(tid) {
+          userRequest
+        .get('/user/getReceiver', {
+          params: { tid: tid }
+        })
+        .then(res => {
+          this.receiveUser = res.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     //用户接取任务
     receiveTask() {
       const request = {
         tid: this.taskInfo.tid,
-        owner_id:this.taskInfo.owner_id,
+        owner_id: this.taskInfo.owner_id,
         receiver_id: parseInt(this.uid)
       }
       userRequest
@@ -239,7 +265,10 @@ export default {
             //接取成功
             Toast({
               type: 'success',
-              message: '接取任务成功'
+              message: '接取任务成功',
+              onClose: () => {
+                this.$router.push('/task/receiveTask/' + this.taskInfo.tid)
+              }
             })
           } else {
             //接取失败
