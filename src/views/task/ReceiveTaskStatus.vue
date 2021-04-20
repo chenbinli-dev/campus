@@ -117,7 +117,7 @@
         </step>
 
         <step v-if="process.receiver_confirm === 1">
-          <p>等待发布用户确认完成</p>
+          <p>发布用户确认完成</p>
           <p v-if="process.releaser_confirm_at">{{process.releaser_confirm_at}}</p>
         </step>
       </steps>
@@ -191,7 +191,9 @@ export default {
           console.log(res.data)
           this.process = res.data
           //更新步骤条
-          if (res.data.receiver_confirm === 1) {
+          if (res.data.releaser_confirm === 1) {
+            this.active = 5
+          } else if (res.data.receiver_confirm === 1) {
             this.active = 4
           } else if (res.data.arrived === 1) {
             this.active = 3

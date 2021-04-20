@@ -6,30 +6,30 @@
       </template>
     </nav-bar>
 
-    <ul class="message_list">
-      <li v-for="(item,index) in arr" :key="index">
-        <!--发送者-->
-        <div class="message-item-sender" v-if="item.from_id === parseInt(uid)">
-          <div class="sender_item_body">
-            <div class="sender_message_body">{{item.message_body}}</div>
-            <!-- <div class="sender_send_at">{{item.send_at}}</div> -->
-          </div>
+    <div class="message_list" ref="scroll">
+      <div v-for="(item,index) in arr" :key="index" ref="item">
+        <!--对方-->
+        <div class="left" v-if="item.to_id === parseInt(uid)">
           <div class="avatar">
             <img :src="sender.avatar_url" />
           </div>
+          <div class="left_item_body">
+            <div class="left_message_body">{{item.message_body}}</div>
+            <div class="left_send_at">{{item.send_at}}</div>
+          </div>
         </div>
-        <!--接收者-->
-        <div class="message-item-receiver" v-else>
+        <!--自己-->
+        <div class="right" v-if="item.from_id === parseInt(uid)">
           <div class="avatar">
             <img :src="receiver.avatar_url" />
           </div>
-          <div class="receiver_item_body">
-            <div class="receiver_message_body">{{item.message_body}}</div>
-            <!-- <div class="receiver_send_at">{{item.send_at}}</div> -->
+          <div class="right_item_body">
+            <div class="right_message_body">{{item.message_body}}</div>
+            <div class="right_send_at">{{item.send_at}}</div>
           </div>
         </div>
-      </li>
-    </ul>
+      </div>
+    </div>
     <div class="input">
       <input v-model="message" placeholder="请输入" />
       <div class="send_icon" @click="send">
@@ -69,6 +69,22 @@ export default {
         .then(res => {
           console.log(res.data)
           if (res.data) {
+            //处理时间，如果聊天时间不是今天，则显示具体时间
+            res.data.forEach(item => {
+              if (new Date(item.send_at).toLocaleDateString() === new Date().toLocaleDateString()) {
+                const date = new Date(item.send_at)
+                const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
+                const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+                item.send_at = hours + ':' + minutes
+              } else {
+                const date = new Date(item.send_at)
+                const month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth()
+                const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
+                const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
+                const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+                item.send_at = month + '-' + day + ' ' + hours + ':' + minutes
+              }
+            })
             this.arr = res.data
           }
         })
@@ -102,10 +118,11 @@ export default {
         from_id: parseInt(this.uid),
         send_at: new Date()
       }
-      this.arr.push(data)
       socket.emit('send', data)
+      const date = new Date(data.send_at)
+      data.send_at = date.getHours() + ':' + date.getMinutes()
+      this.arr.push(data)
       this.message = ''
-      console.log(this.arr)
     },
     //接受消息
     getMessage() {
@@ -157,6 +174,17 @@ export default {
     this.getUser(parseInt(this.$route.params.uid))
     this.getSenderUser(parseInt(this.uid))
     this.getUserChatRecord()
+  },
+  watch: {
+    //监听数组的变化,滚动定位到底部
+    arr(val) {
+      if (val) {
+        this.$nextTick(() => {
+          let scorll = this.$refs.scroll
+          scorll.scrollTop = scorll.scrollHeight
+        })
+      }
+    }
   }
 }
 </script>
@@ -170,15 +198,14 @@ export default {
 }
 .chat {
   height: 100%;
-  overflow: scroll;
+  padding: 12vw 0;
 }
 .message_list {
-  margin-top: 12vw;
-  margin-bottom: 12vw;
-}
-.message_list li {
-  margin: 2vw;
-  outline-style: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: scroll;
 }
 .avatar {
   width: 10vw;
@@ -189,43 +216,59 @@ export default {
   height: 100%;
   border-radius: 50%;
 }
-.message-item-sender {
+.left {
   display: flex;
-  justify-content: flex-end;
-  width: 100%;
+  align-items: flex-end;
+  flex-direction: row;
   padding: 2vw;
 }
-.sender_item_body {
-  width: fit-content;
-  margin-right: 2vw;
+.right {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row-reverse;
+  padding: 2vw;
 }
-.receiver_item_body {
+.left_item_body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   margin-left: 2vw;
 }
-.sender_message_body {
-  display: inline-block;
+.right_item_body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 2vw;
+}
+.right_message_body {
   position: relative;
-  right: 0;
-  padding: 2vw;
-  margin: 0 2vw 0 0;
-  border-radius: 2vw;
+  max-width: 70vw;
+  padding: 2vw 3vw;
+  font-size: 3.5vw;
+  color: rgba(25, 29, 35, 1);
+  border-radius: 2vw 2vw 0 2vw;
   background-color: rgb(148, 236, 192);
 }
-.message-item-receiver {
-  display: flex;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 2vw;
+.left_message_body {
+  position: relative;
+  max-width: 70vw;
+  padding: 2vw 3vw;
+  border-radius: 2vw 2vw 2vw 0;
+  font-size: 3.5vw;
+  color: rgba(25, 29, 35, 1);
+  background-color: rgb(255, 255, 255, 1);
 }
-.receiver_message_body {
-  display: inline-block;
-  padding: 2vw;
-  margin: 0 0 0 2vw;
-  border-radius: 2vw;
-  background-color: #8fe;
+.left_send_at {
+  padding-top: 2vw;
+  color: rgba(25, 29, 35, 1);
+  width: fit-content;
+  line-height: 4vw;
 }
-.receiver_send_at {
-  padding-left: 2vw;
+.right_send_at {
+  padding-top: 2vw;
+  color: rgba(25, 29, 35, 1);
+  width: fit-content;
+  line-height: 4vw;
 }
 .input {
   position: fixed;

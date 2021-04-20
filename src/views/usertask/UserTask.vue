@@ -42,7 +42,10 @@
             </div>
             <div class="itemBody">
               <span class="countDown">
-                <count-down :time="new Date(item.expiration_time) - new Date()">
+                <count-down
+                  :time="new Date(item.expiration_time) - new Date()"
+                  v-if="item.status !== 3"
+                >
                   <template #default="timeData">
                     <span class="block">{{ timeData.days }}</span>
                     <span class="colon">天</span>
@@ -52,6 +55,7 @@
                     <span class="colon">分</span>
                   </template>
                 </count-down>
+                <div class="tips" v-else>任务已完成，快去评价吧>>></div>
               </span>
 
               <div class="task_type_label">
@@ -93,7 +97,10 @@
             </div>
             <div class="itemBody">
               <span class="countDown">
-                <count-down :time="new Date(item.expiration_time) - new Date()">
+                <count-down
+                  :time="new Date(item.expiration_time) - new Date()"
+                  v-if="item.status !== 3"
+                >
                   <template #default="timeData">
                     <span class="block">{{ timeData.days }}</span>
                     <span class="colon">天</span>
@@ -103,6 +110,8 @@
                     <span class="colon">分</span>
                   </template>
                 </count-down>
+
+                <div class="tips" v-else>任务完成，很棒哦</div>
               </span>
 
               <div class="task_type_label">
@@ -276,6 +285,10 @@ export default {
 }
 .countDown {
   vertical-align: middle;
+}
+.tips {
+  font-size: 4vw;
+  color: #ffd300;
 }
 .colon {
   display: inline-block;
