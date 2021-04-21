@@ -52,7 +52,7 @@ export default {
         username: '',
         password: ''
       },
-      loginTypeTitle: '自定义用户名登录',
+      loginTypeTitle: '登录',
 
     }
   },
@@ -105,7 +105,7 @@ export default {
             }
           })
           .catch(err => {
-            console.log(err)
+            console.log(err.response)
           })
       }
     }
@@ -135,6 +135,7 @@ export default {
 }
 .goRegister {
   font-size: 4vw;
+  padding-left: 2vw;
 }
 .bottom-ico {
   width: 100%;

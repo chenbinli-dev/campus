@@ -1,6 +1,6 @@
 /* 这是一个可自定义的普通组件-文本输入组件 */
 <template>
-  <div id="input" class="input">
+  <div id="input">
     <field
       :type="type"
       :placeholder="placeholder"
@@ -19,14 +19,14 @@ import { Field } from 'vant'
 export default {
   //导出组件
   name: 'TextInput',
-  data () {
+  data() {
     return {
       content: ''
     }
   },
-  props: ['clearable', 'type', 'placeholder', 'rule', "lengthLimit"],
+  props: ['clearable', 'type', 'placeholder', 'rule', 'lengthLimit'],
   methods: {
-    emitContent () {
+    emitContent() {
       this.$emit('emitContent', this.content)
     }
   },
@@ -37,9 +37,6 @@ export default {
 </script>
 
 <style>
-.input {
-  width: auto;
-}
 .text-input {
   padding: 4vw;
 }

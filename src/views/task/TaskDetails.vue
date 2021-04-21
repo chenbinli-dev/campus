@@ -226,7 +226,7 @@ export default {
         const leave2 = leave1 % (3600 * 1000)
         //计算相差分钟数
         const minutes = Math.floor(leave2 / (60 * 1000))
-        return '任务共花了：'+ days + '天' + hours + '小时' + minutes + '分'
+        return '任务共花了：' + days + '天' + hours + '小时' + minutes + '分'
       } else {
         return null
       }
@@ -265,12 +265,19 @@ export default {
         })
         .then(res => {
           this.taskInfo = res.data
-          //如果是非发布用户，则获取发布用户的信息;否则就获取接取用户的信息
+          //非发布用户，则获取发布用户的信息
           if (localStorage.getItem('ID') != this.taskInfo.owner_id) {
             this.getReleaseUser(this.taskInfo.owner_id)
           } else {
-            this.getReceiveUser(this.taskInfo.tid)
-            this.getTaskProcess(this.taskInfo.tid)
+            //发布用户，如果是接取，完成，超时状态，则获取接取用户的信息
+            if (
+              this.taskInfo.status === 2 ||
+              this.taskInfo.status === 3 ||
+              this.taskInfo.status === 5
+            ) {
+              this.getReceiveUser(this.taskInfo.tid)
+              this.getTaskProcess(this.taskInfo.tid)
+            }
           }
           // //改变任务进度显示
           // if (this.taskInfo.status === 1) {

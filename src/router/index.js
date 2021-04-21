@@ -73,7 +73,7 @@ const routes = [
         path: "/usertask",
         component: UserTask,
         meta: {
-            needLogin: true
+            needLogin: true,
         }
     },
     {

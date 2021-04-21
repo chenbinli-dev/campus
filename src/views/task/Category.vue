@@ -6,7 +6,7 @@
       </template>
     </nav-bar>
     <!--下拉菜单-->
-    <div class="dropdown">
+    <div class="dropdown" :overlay="false">
       <dropdown-menu active-color="#ffd300">
         <dropdown-item v-model="type" :options="types" @change="changeType" />
         <dropdown-item v-model="sortord" :options="sortords" @change="changeSortord" />
@@ -122,7 +122,11 @@ export default {
             Toast({
               type: 'fail',
               message: '没有对应的任务',
-              duration: 500
+              duration: 500,
+              onClose: () => {
+                this.taskListLoading = false
+                this.taskListFinished = true
+              }
             })
           } else {
             res.data.reverse().forEach(item => {

@@ -1,33 +1,39 @@
 <template>
   <div id="usertask" class="usertask">
-    <nav-bar title="任务信息" class="navbar" />
     <tabs
       v-model="active"
       type="line"
-      sticky
       animated
-      line-width="10vw"
+      line-width="12vw"
       color="#ffd300"
       title-active-color="#ffd300"
       class="tabs"
       @click="onClick"
     >
-      <tab name="release" title="发布的任务" class="releaseTask">
-        <div class="empty" v-if="MyReleaseTask.length === 0">
-          <span>您还未发布任何任务</span>
-        </div>
+      <tab name="0" title="发布的任务" class="tab">
+        <!--下拉菜单-->
+        <dropdown-menu active-color="#ffd300">
+          <dropdown-item v-model="type" :options="types" @change="changeType" get-container="#app" />
+          <dropdown-item
+            v-model="status"
+            :options="status_options"
+            @change="changeStatus"
+            get-container="#app"
+          />
+        </dropdown-menu>
+        <!--显示列表-->
         <list
-          v-else
-          v-model="releaseTaskLoading"
+          v-model="ReleaseTaskListLoading"
           :error.sync="error"
           error-text="请求失败，点击重新加载"
-          :finished="releaseTaskFinished"
+          :finished="ReleaseTaskListFinished"
           finished-text="没有更多了"
           offset="400"
-          @load="getMyReleaseTask"
+          class="releaseTaskList"
+          @load="getTaskList"
         >
           <div
-            v-for="(item,index) in MyReleaseTask"
+            v-for="(item,index) in TaskList"
             :key="item.tid"
             class="taskItem"
             @click="$router.push({path:'/task/'+item.tid})"
@@ -69,21 +75,28 @@
         </list>
       </tab>
       <!--接取任务列表-->
-      <tab name="receive" title="接取的任务">
-        <div class="empty" v-if="MyReceiveTask.length === 0">
-          <span>您还未接取任何任务</span>
-        </div>
+      <tab name="1" title="接取的任务">
+        <!--下拉菜单-->
+        <dropdown-menu active-color="#ffd300">
+          <dropdown-item v-model="type" :options="types" @change="changeType" get-container="#app" />
+          <dropdown-item
+            v-model="status"
+            :options="receive_status_options"
+            @change="changeStatus"
+            get-container="#app"
+          />
+        </dropdown-menu>
+        <!--列表-->
         <list
-          v-else
-          v-model="receiveTaskLoading"
+          v-model="ReceiveTaskListLoading"
           :error.sync="error"
           error-text="请求失败，点击重新加载"
-          :finished="receiveTaskFinished"
+          :finished="ReceiveTaskListFinished"
           finished-text="没有更多了"
-          @load="getMyReceiveTask"
+          @load="getTaskList"
         >
           <div
-            v-for="(item,index) in MyReceiveTask"
+            v-for="(item,index) in TaskList"
             :key="item.tid"
             class="taskItem"
             @click="$router.push({path:'/task/receiveTask/'+item.tid})"
@@ -131,27 +144,47 @@
 
 <script>
 const Tabbar = () => import('components/common/tabbar/Tabbar')
-import { NavBar, Tab, Tabs, List, Tag, CountDown } from 'vant'
+import { Tab, Tabs, DropdownMenu, DropdownItem, List, Tag, CountDown, Toast } from 'vant'
 import userRequest from 'network/http'
 export default {
   name: 'UserTask',
   data() {
     return {
-      active: 0,
-      MyReleaseTask: [],
-      MyReceiveTask: [],
-      releaseTaskLoading: false,
-      releaseTaskFinished: false,
-      receiveTaskLoading: false,
-      receiveTaskFinished: false,
+      active: '0',
+      type: 0,
+      status: 0,
+      types: [
+        { text: '代取快递', value: 0 },
+        { text: '代打印', value: 1 },
+        { text: '代购物', value: 2 },
+        { text: '其他代跑', value: 3 }
+      ],
+      status_options: [
+        { text: '闲置', value: 0 },
+        { text: '进行中', value: 1 },
+        { text: '已完成', value: 2 },
+        { text: '过期', value: 3 },
+        { text: '超时', value: 4 }
+      ],
+      receive_status_options: [
+        { text: '进行中', value: 0 },
+        { text: '已完成', value: 1 },
+        { text: '超时', value: 2 }
+      ],
+      TaskList: [],
+      ReleaseTaskListLoading: false,
+      ReleaseTaskListFinished: false,
+      ReceiveTaskListLoading: false,
+      ReceiveTaskListFinished: false,
       error: false
     }
   },
   components: {
     Tabbar,
-    NavBar,
     Tab,
     Tabs,
+    DropdownMenu,
+    DropdownItem,
     List,
     Tag,
     CountDown
@@ -159,78 +192,86 @@ export default {
   methods: {
     //选项卡点击
     onClick(name) {
-      if (name === 'release') {
-        this.MyReleaseTask = []
-        this.getMyReleaseTask()
-      } else if (name === 'receive') {
-        this.MyReceiveTask = []
-        this.getMyReceiveTask()
+      if (name === '0') {
+        this.type = 0
+        this.status = 0
+        this.getTaskList()
+      } else if (name === '1') {
+        this.type = 0
+        this.status = 0
+        this.getTaskList()
       }
     },
-    //获取用户发布的任务
-    getMyReleaseTask() {
+    //获取任务列表,active代表发布或者接取，type为任务类型，status为任务状态
+    getTaskList() {
+      this.TaskList = []
       userRequest
-        .get('/task/getUserReleaseTask', {
-          params: { uid: localStorage.getItem('ID') }
+        .get('/task/getUserTaskList', {
+          params: {
+            list_type: this.active,
+            type: this.type,
+            status: this.status,
+            uid: localStorage.getItem('ID')
+          }
         })
         .then(res => {
           console.log(res.data)
-          if (res.data) {
-            res.data.forEach(item => {
-              this.MyReleaseTask.push(item)
-              this.releaseTaskLoading = true
+          if (res.data.length === 0) {
+            //没有对应的任务
+            Toast({
+              type: 'fail',
+              message: '没有对应的任务',
+              duration: 500,
+              onClose: () => {
+                if (this.active === '0') {
+                  this.ReleaseTaskListLoading = false
+                  this.ReleaseTaskListFinished = true
+                } else {
+                  this.ReceiveTaskListLoading = false
+                  this.ReceiveTaskListFinished = true
+                }
+              }
             })
-            //检查是否加载完毕
-            this.releaseTaskFinished = true
+          } else {
+            if (this.active === '0') {
+              res.data.forEach(item => {
+                this.TaskList.push(item)
+                this.ReleaseTaskListLoading = true
+              })
+
+              if (this.TaskList.length === res.data.length) {
+                this.ReleaseTaskListFinished = true
+              }
+            } else {
+              res.data.forEach(item => {
+                this.TaskList.push(item)
+                this.ReceiveTaskListLoading = true
+              })
+
+              if (this.TaskList.length === res.data.length) {
+                this.ReceiveTaskListFinished = true
+              }
+            }
           }
         })
         .catch(err => {
           console.log(err)
-          this.error = true
         })
     },
-    //获取用户接取的任务
-    getMyReceiveTask() {
-      userRequest
-        .get('/task/getUserReceiveTask', {
-          params: { uid: localStorage.getItem('ID') }
-        })
-        .then(res => {
-          console.log(res.data)
-          if (res.data) {
-            res.data.forEach(item => {
-              this.MyReceiveTask.push(item)
-              this.receiveTaskLoading = true
-            })
-            //检查是否加载完毕
-            this.receiveTaskFinished = true
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          this.error = true
-        })
+    //监听用户点击下拉菜单
+    changeType(value) {
+      this.type = value
+      this.getTaskList()
     },
-    //更新任务状态为过期
-    updateTaskStatus(tid, status) {
-      const requestBody = {
-        tid: tid,
-        status: status
-      }
-      userRequest
-        .post('/task/updateTaskStatus', requestBody)
-        .then(res => {
-          if (res.data.message === 'UPDATE_SUCCESS' && res.data.statusCode === 200) {
-            return res.data.statusCode
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    changeStatus(value) {
+      this.status = value
+      this.getTaskList()
     }
   },
-  created() {
-    this.getMyReleaseTask()
+  mounted() {
+    if (sessionStorage.getItem('CACHE')) {
+      this.getTaskList()
+    }
   }
 }
 </script >
@@ -238,18 +279,14 @@ export default {
 <style>
 .usertask {
   height: 100%;
-  overflow: scroll;
+  padding-bottom: 12vw;
 }
-.navbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
+.tab {
+  height: 100%;
 }
-.tabs {
-  margin-top: 12vw;
+.dropdown {
+  width: 100%;
 }
-
 .taskItem {
   padding: 2vw;
   margin: 2vw;
