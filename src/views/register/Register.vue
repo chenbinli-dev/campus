@@ -44,19 +44,20 @@
           type="text"
           placeholder="请输入您的邮箱"
           class="register-text-input"
-          rule="^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"
-          lengthLimit="16"
+          lengthLimit="20"
           clearable="true"
-          @emitContent="(res) => (this.eamil = res)"
+          @emitContent="(res) => (this.email = res)"
         />
         <field v-model="verifyCode" clearable placeholder="请输入6位字符验证码" style="margin-bottom:5vw">
           <template #button>
-            <van-button size="small" type="primary" :disabled="isDisabled" @click="sendCode">
-              {{button_text}}
-              <span :class="{'showCountDown':isShow}">
-                <count-down ref="countDown" :time="time" format="ss秒" />
-              </span>
-            </van-button>
+            <van-button
+              v-if="!showCounter"
+              size="small"
+              type="primary"
+              :text="button_text"
+              @click="sendCode"
+            />
+            <van-button v-else size="small" color="#666666" disabled>{{time_counter+'s后重新获取'}}</van-button>
           </template>
         </field>
         <text-input
@@ -77,7 +78,13 @@
           clearable="true"
           @emitContent="(res) => (this.passwordAgain = res)"
         />
-        <van-button round size="large" color="#ffd300" class="registerButton" @click="register">注册</van-button>
+        <van-button
+          round
+          size="large"
+          color="#ffd300"
+          class="registerButton"
+          @click="email_register"
+        >注册</van-button>
       </tab>
     </tabs>
   </div>
@@ -86,7 +93,7 @@
 <script>
 //导入组件
 const TextInput = () => import('components/common/input/TextInput')
-import { Field, Toast, Icon, Button as VanButton, Tab, Tabs, CountDown } from 'vant'
+import { Field, Toast, Icon, Button as VanButton, Tab, Tabs } from 'vant'
 import userRequest from 'network/http'
 
 export default {
@@ -99,16 +106,15 @@ export default {
         password: ''
       },
       passwordAgain: '',
-      eamil: '',
+      email: '',
       verifyCode: '',
-      time: 1000 * 61,
-      isDisabled: false,
-      isShow: true,
+      showCounter: false,
+      time_counter: null,
       registerTypeTitle: '自定义用户名注册',
       button_text: '发送验证码'
     }
   },
-  components: { Field, TextInput, VanButton, Icon, Tab, Tabs, CountDown },
+  components: { Field, TextInput, VanButton, Icon, Tab, Tabs },
   methods: {
     //用户自定义注册
     register() {
@@ -168,12 +174,141 @@ export default {
           })
       }
     },
-    //用户邮箱注册
+    //用户获取邮箱验证码
     sendCode() {
-      this.isDisabled = true
-      this.$refs.countDown.start()
-      this.isShow = false
-      this.button_text = null
+      console.log(this.email)
+      const email_rule = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+      if (email_rule.test(this.email)) {
+        //邮箱格式通过,发送用户邮箱，等待后台发送验证码
+        const body = {
+          email: this.email
+        }
+        userRequest
+          .post('/user/getEmailCode', body)
+          .then(res => {
+            console.log(res.data)
+            if (res.data.message === 'SEND_SUCCESS' && res.data.sendStatus === 200) {
+              //发送成功
+              Toast({
+                type: 'success',
+                message: '验证码已发送到您邮箱'
+              })
+              this.showCounter = true
+              this.userInfo.username = this.email
+              //设置倒计时
+              this.time_counter = 60
+              const timer = setInterval(() => {
+                if (this.time_counter > 0) {
+                  this.time_counter--
+                } else {
+                  this.showCounter = false
+                  this.button_text = '重新获取'
+                  clearInterval(timer)
+                }
+              }, 1000)
+            } else {
+              //发送失败
+              Toast({
+                type: 'fail',
+                message: '发送失败，请重试',
+                onClose: () => {
+                  this.email = ''
+                }
+              })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      } else {
+        //邮箱格式不通过
+        Toast({
+          type: 'fail',
+          message: '邮箱不合法'
+        })
+        return
+      }
+    },
+    //提交邮箱注册信息
+    email_register() {
+      const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
+      if (!this.verifyCode) {
+        Toast({
+          type: 'fail',
+          message: '验证码为空'
+        })
+        return
+      } else if (this.verifyCode.length !== 6) {
+        Toast({
+          type: 'fail',
+          message: '验证码不合法'
+        })
+        return
+      } else if (!this.userInfo.password || !this.passwordAgain) {
+        Toast({
+          type: 'fail',
+          message: '密码不能为空'
+        })
+        return
+      } else if (this.userInfo.password !== this.passwordAgain) {
+        Toast({
+          type: 'fail',
+          message: '前后密码不一致'
+        })
+        return
+      } else if (
+        !userpasswordRule.test(this.userInfo.password) ||
+        !userpasswordRule.test(this.passwordAgain)
+      ) {
+        Toast({
+          type: 'fail',
+          message: '密码不合法'
+        })
+        return
+      } else {
+        //全部通过，提交后台
+        const body = {
+          username: this.userInfo.username,
+          password: this.userInfo.password,
+          verifyCode: this.verifyCode
+        }
+        userRequest
+          .post('/user/emailRegister', body)
+          .then(res => {
+            console.log(res.data)
+            if (res.data.statusCode === 200) {
+              //注册成功
+              Toast({
+                type: 'success',
+                message: '注册成功',
+                onClose: () => {
+                  this.$router.push('/user/login')
+                }
+              })
+            } else if (res.data.statusCode === 500) {
+              //注册失败
+              Toast({
+                type: 'fail',
+                message: '注册失败'
+              })
+            } else if (res.data.statusCode === 301) {
+              //验证码错误
+              Toast({
+                type: 'fail',
+                message: '验证码错误'
+              })
+            } else if (res.data.statusCode === 302) {
+              //验证码失效
+              Toast({
+                type: 'fail',
+                message: '无效验证码'
+              })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
     }
   }
 }
