@@ -485,6 +485,9 @@ export default {
   padding: 2vw;
   border-bottom: solid 0.1vw;
 }
+.file_list li span {
+  font-size: 4vws;
+}
 .file_list li :nth-child(2) {
   float: right;
 }

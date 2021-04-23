@@ -3,10 +3,22 @@
   <div id="receive_status" class="receive_status">
     <nav-bar title="任务代跑进程" class="navbar">
       <template #left>
-        <icon name="arrow-left" size="6vw" @click="$router.back()" />
+        <icon name="arrow-left" size="6vw" @click="$router.push('/usertask')" />
       </template>
     </nav-bar>
     <div class="task_number">代跑编号：{{process.id}}</div>
+    <!--任务完成或超时通知-->
+    <div class="task_message" v-if="process.releaser_confirm === 1">
+      <div class="task_message_title">
+        <img src="~assets/img/finished.svg" width="30vw" height="30vw" />任务已经完成
+      </div>
+      <div class="message_body" v-if="taskInfo.type === '代取快递'">任务金￥{{taskInfo.commission}}已发放至您的账户</div>
+      <div
+        class="message_body"
+        v-else
+      >预估金￥{{taskInfo.estimated_amount}}，任务金￥{{taskInfo.commission}}已发放至您的账户</div>
+    </div>
+    <!--发布用户信息和聊天按钮-->
     <div class="releaser">
       <div class="releaser_avatar">
         <van-image
@@ -22,23 +34,40 @@
         <icon name="chat-o" size="10vw" color="#ffd300" />发起聊天
       </div>
     </div>
-    <div class="taskFile">
-      <div class="FileBox_title" v-if="taskInfo.type === '代取快递'">取件码</div>
-      <ul class="file_list">
+    <!--取件码-->
+    <div class="taskFile" v-if="taskInfo.type === '代取快递'">
+      <div class="FileBox_title">取件码</div>
+      <ul class="file_list_image">
         <li v-for="item in taskInfo.upload_file_url" :key="item.tid">
           <van-image width="50%" height="50%" lazy-load:true show-loading :src="item" />
         </li>
       </ul>
     </div>
+    <!--代打印文件码-->
+    <div class="taskFile" v-if="taskInfo.type === '代打印'">
+      <div class="FileBox_title">代打印文件</div>
+      <ul class="file_list_download">
+        <li v-for="(val,index) in taskInfo.upload_file_url" :key="index">
+          <span>{{'文件'}}{{parseInt(index+1)}}</span>
+          <a :href="val" download>
+            <icon name="down" color="#ffd300" size="5vw" />
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--商品图片-->
+    <div class="taskFile" v-if="taskInfo.type === '代购物'">
+      <div class="FileBox_title">商品图片</div>
+      <ul class="file_list_image">
+        <li v-for="item in taskInfo.upload_file_url" :key="item.tid">
+          <van-image width="50%" height="50%" lazy-load:true show-loading :src="item" />
+        </li>
+      </ul>
+    </div>
+
     <div class="process">
       <div class="process_title">任务进度</div>
-      <steps
-        :active="active"
-        direction="vertical"
-        active-color="#ffd300"
-        class="steps"
-        v-if="taskInfo.type === '代取快递'"
-      >
+      <steps :active="active" direction="vertical" active-color="#ffd300" class="steps">
         <step>
           <p>接取任务</p>
           <p>{{process.createAt}}</p>
@@ -275,6 +304,25 @@ export default {
   right: 0;
   top: 0;
 }
+.task_message {
+  width: 100%;
+  height: 20vw;
+  padding: 2vw;
+  align-items: center;
+  margin-bottom: 2vw;
+}
+.task_message_title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4vw;
+  color: #ffd300;
+}
+.message_body {
+  text-align: center;
+  font-size: 4vw;
+  color: #ffd300;
+}
 .task_number {
   width: 100%;
   text-align: center;
@@ -313,8 +361,21 @@ export default {
   margin-bottom: 2vw;
   color: black;
 }
-.file_list img {
+.file_list_image img {
   border-radius: 1vw;
+}
+.file_list_download {
+  width: 100%;
+}
+.file_list_download li {
+  padding: 2vw;
+  border-bottom: solid 0.1vw;
+}
+.file_list_download li span {
+  font-size: 4vw;
+}
+.file_list_download li :nth-child(2) {
+  float: right;
 }
 .process_title {
   padding-left: 4vw;

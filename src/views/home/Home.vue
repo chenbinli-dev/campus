@@ -123,6 +123,13 @@ export default {
     },
     //接取任务
     toGetTask() {
+      if (this.$store.state.user_right === 1) {
+        Toast({
+          type: 'fail',
+          message: '您还未进行身份验证'
+        })
+        return
+      }
       Dialog.alert({
         title: '注意',
         message: '接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'

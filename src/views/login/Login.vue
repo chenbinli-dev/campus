@@ -4,10 +4,9 @@
     <div id="loginTypeTitle" class="loginTypeTitle">{{ loginTypeTitle }}</div>
     <text-input
       type="text"
-      placeholder="请输入您的用户名,8-16位数字或字母"
+      placeholder="请输入您的用户名"
       class="login-text-input"
-      rule="[a-zA-Z0-9_]{7,15}$"
-      lengthLimit="16"
+      lengthLimit="20"
       clearable="true"
       @emitContent="(res) => (this.userInfo.username = res)"
     />
@@ -20,18 +19,8 @@
       clearable="true"
       @emitContent="(res) => (this.userInfo.password = res)"
     />
-    <van-button
-      round
-      color="#ffd300"
-      size="large"
-      class="loginButton"
-      @click="Login"
-    >
-      登录
-    </van-button>
-    <div class="goRegister" @click="$router.push('/user/register')">
-      没有账号？立即注册
-    </div>
+    <van-button round color="#ffd300" size="large" class="loginButton" @click="Login">登录</van-button>
+    <div class="goRegister" @click="$router.push('/user/register')">没有账号？立即注册</div>
     <div id="bottom-ico" class="bottom-ico">
       <img class="logo" src="../../assets/img/logo.svg" />
     </div>
@@ -46,14 +35,13 @@ import userRequest from 'network/http'
 
 export default {
   name: 'Login',
-  data () {
+  data() {
     return {
       userInfo: {
         username: '',
         password: ''
       },
-      loginTypeTitle: '登录',
-
+      loginTypeTitle: '登录'
     }
   },
   components: {
@@ -62,9 +50,10 @@ export default {
   },
   methods: {
     //用户登录
-    Login () {
+    Login() {
       //对用户名和密码进行校验，是否符合规范
-      const usernameRule = /[a-zA-Z0-9_]{7,15}$/
+      const usernameRule1 = /[a-zA-Z0-9_]{7,19}$/
+      const usernameRule2 = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
       const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
       if (!this.userInfo.username || !this.userInfo.password) {
         //1.用户名和密码都不能为空
@@ -72,10 +61,13 @@ export default {
           type: 'fail',
           message: '用户名或密码不能为空'
         })
-      } else if (!usernameRule.test(this.userInfo.username)
-        || !userpasswordRule.test(this.userInfo.password)
-        || this.userInfo.username.length > 16
-        || this.userInfo.password.length > 18) {
+      } else if (
+        !usernameRule1.test(this.userInfo.username) &&
+        !usernameRule2.test(this.userInfo.username) ||
+        !userpasswordRule.test(this.userInfo.password) ||
+        this.userInfo.username.length > 20 ||
+        this.userInfo.password.length > 18
+      ) {
         //2.输入的用户名和密码是否符合规范
         Toast({
           type: 'fail',
@@ -84,7 +76,8 @@ export default {
         })
       } else {
         //3.发送登录请求
-        userRequest.post('/user/login', this.userInfo)
+        userRequest
+          .post('/user/login', this.userInfo)
           .then(res => {
             // console.log(res.data);
             //登录成功
@@ -110,7 +103,6 @@ export default {
       }
     }
   }
-
 }
 </script>
 

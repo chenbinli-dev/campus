@@ -10,10 +10,10 @@
         <text-input
           style="margin-top:5vw"
           type="text"
-          placeholder="请输入您的用户名,8-16位数字或字母"
+          placeholder="请输入您的用户名,8-20位数字或字母"
           class="register-text-input"
-          rule="[a-zA-Z0-9_]{7,15}$"
-          lengthLimit="16"
+          rule="[a-zA-Z0-9_]{7,19}$"
+          lengthLimit="20"
           clearable="true"
           @emitContent="(res) => (this.userInfo.username = res)"
         />
@@ -119,7 +119,7 @@ export default {
     //用户自定义注册
     register() {
       //对用户名和密码进行校验，是否符合规范
-      const usernameRule = /[a-zA-Z0-9_]{7,15}$/
+      const usernameRule = /[a-zA-Z0-9_]{7,19}$/
       const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
 
       if (!this.userInfo.username || !this.userInfo.password || !this.passwordAgain) {
@@ -137,7 +137,7 @@ export default {
       } else if (
         !usernameRule.test(this.userInfo.username) ||
         !userpasswordRule.test(this.userInfo.password) ||
-        this.userInfo.username.length > 16 ||
+        this.userInfo.username.length > 20 ||
         this.userInfo.password.length > 18
       ) {
         Toast({
