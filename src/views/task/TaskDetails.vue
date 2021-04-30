@@ -167,12 +167,18 @@
           <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 1">闲置中</span>
           <span
             v-if="taskInfo.status === 2"
-            @click="$router.push({path:'/chat/'+ receiveUser.uid})"
+            @click="$router.push({path:'/chat/',query:{to_id: receiveUser.uid}})"
           >
             <icon name="chat-o" size="8vw" />
           </span>
-          <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 3">已完成,去评价</span>
+          <span
+            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 3"
+            @click="$router.push({
+              path:'/task/comment/'+taskInfo.tid
+            })"
+          >已完成,去评价</span>
           <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 4">已过期</span>
+          <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5">已超时</span>
         </div>
       </div>
     </div>
@@ -247,16 +253,16 @@ export default {
     Steps
   },
   methods: {
-    //处理时间
-    utc2beijing(utc_datetime) {
-      // 转为正常的时间格式 年-月-日 时:分:秒
-      let T_pos = utc_datetime.indexOf('T')
-      let Z_pos = utc_datetime.indexOf('.')
-      let year_month_day = utc_datetime.substr(0, T_pos)
-      let hour_minute_second = utc_datetime.substr(T_pos + 1, Z_pos - T_pos - 1)
-      let new_datetime = year_month_day + ' ' + hour_minute_second // 2017-03-31 08:02:06
-      return new_datetime
-    },
+    // //处理时间
+    // utc2beijing(utc_datetime) {
+    //   // 转为正常的时间格式 年-月-日 时:分:秒
+    //   let T_pos = utc_datetime.indexOf('T')
+    //   let Z_pos = utc_datetime.indexOf('.')
+    //   let year_month_day = utc_datetime.substr(0, T_pos)
+    //   let hour_minute_second = utc_datetime.substr(T_pos + 1, Z_pos - T_pos - 1)
+    //   let new_datetime = year_month_day + ' ' + hour_minute_second // 2017-03-31 08:02:06
+    //   return new_datetime
+    // },
     //获取任务详情
     getTaskDetails() {
       userRequest

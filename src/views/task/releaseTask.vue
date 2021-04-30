@@ -395,23 +395,6 @@ export default {
       //将文件加入到task对象的upload_file数组中
       this.upload_file.push(file.file)
     },
-    //将任务有效时间转换为过期时间
-    dealTime() {
-      let date = new Date()
-      let y = date.getFullYear()
-      let m = date.getMonth() + 1
-      m = m < 10 ? '0' + m : m
-      let d = date.getDate() + this.validTime
-      let h = date.getHours()
-      h = h < 10 ? '0' + h : h
-      let minute = date.getMinutes()
-      let second = date.getSeconds()
-      minute = minute < 10 ? '0' + minute : minute
-
-      let deadtime = y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second
-
-      return deadtime
-    },
     //提交表单，发布任务
     onSubmit() {
       //判断用户是否上传了图片或文件
@@ -504,8 +487,7 @@ export default {
         task.append('estimated_amount', this.estimated_amount)
       }
       task.append('commission', this.commission)
-      const deadtime = this.dealTime()
-      task.append('expiration_time', deadtime)
+      task.append('expiration_time', this.$moment().add(this.validTime, 'days').format('YYYY-MM-DD HH:mm:ss'))
       task.append('addressee', this.addressee)
       task.append('telephone', this.telephone)
       task.append('address', this.address)

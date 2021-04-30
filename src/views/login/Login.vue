@@ -62,8 +62,8 @@ export default {
           message: '用户名或密码不能为空'
         })
       } else if (
-        !usernameRule1.test(this.userInfo.username) &&
-        !usernameRule2.test(this.userInfo.username) ||
+        (!usernameRule1.test(this.userInfo.username) &&
+          !usernameRule2.test(this.userInfo.username)) ||
         !userpasswordRule.test(this.userInfo.password) ||
         this.userInfo.username.length > 20 ||
         this.userInfo.password.length > 18

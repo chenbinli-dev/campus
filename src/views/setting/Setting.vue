@@ -13,21 +13,12 @@
       <cell title="修改密码" is-link to="/user/editPassword" class="cell" />
       <cell title="服务协议" is-link class="cell" />
       <cell title="版本更新" is-link value="v1.0.0.0" class="cell" />
-      <van-button
-        round
-        color="#ffd300"
-        size="large"
-        class="exitButton"
-        @click="exitLogin"
-      >
-        退出登录
-      </van-button>
+      <van-button round color="#ffd300" size="large" class="exitButton" @click="exitLogin">退出登录</van-button>
     </div>
   </div>
 </template>
 
 <script>
-
 import { NavBar, Icon, Dialog, Cell, Button as VanButton } from 'vant'
 export default {
   name: 'Setting',
@@ -39,7 +30,7 @@ export default {
   },
   methods: {
     //退出登录，删除本地token
-    exitLogin () {
+    exitLogin() {
       Dialog.confirm({
         title: '警告',
         message: '确认退出吗？'
@@ -48,6 +39,9 @@ export default {
           await localStorage.clear()
           close()
           this.$router.push('/user/login')
+          //断开连接
+
+          this.$socket.emit('out', parseInt(localStorage.getItem('ID')))
         })
         .catch(() => {
           close()

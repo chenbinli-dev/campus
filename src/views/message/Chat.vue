@@ -1,6 +1,6 @@
 <template>
   <div id="chat" class="chat">
-    <nav-bar :title="receiver.nickname?receiver.nickname:receiver.username" class="navbar">
+    <nav-bar :title="recepter.nickname?recepter.nickname:recepter.username" class="navbar">
       <template #left>
         <icon name="arrow-left" size="6vw" @click="back" />
       </template>
@@ -11,7 +11,7 @@
         <!--对方-->
         <div class="left" v-if="item.to_id === parseInt(uid)">
           <div class="avatar">
-            <img :src="sender.avatar_url" />
+            <img :src="recepter.avatar_url" />
           </div>
           <div class="left_item_body">
             <div class="left_message_body">{{item.message_body}}</div>
@@ -21,7 +21,7 @@
         <!--自己-->
         <div class="right" v-if="item.from_id === parseInt(uid)">
           <div class="avatar">
-            <img :src="receiver.avatar_url" />
+            <img :src="sender.avatar_url" />
           </div>
           <div class="right_item_body">
             <div class="right_message_body">{{item.message_body}}</div>
@@ -41,14 +41,12 @@
 
 <script>
 import { NavBar, Icon, Toast } from 'vant'
-import io from 'socket.io-client'
 import userRequest from 'network/http'
-const socket = io('http://localhost:8880')
 export default {
   name: 'Chat',
   data() {
     return {
-      receiver: {},
+      recepter: {},
       sender: {},
       message: '',
       uid: localStorage.getItem('ID'),
@@ -64,7 +62,7 @@ export default {
     getUserChatRecord() {
       userRequest
         .get('/chat/getRecord', {
-          params: { uid: this.uid }
+          params: { uid: this.uid, to_id: this.$route.query.to_id }
         })
         .then(res => {
           console.log(res.data)
@@ -72,17 +70,9 @@ export default {
             //处理时间，如果聊天时间不是今天，则显示具体时间
             res.data.forEach(item => {
               if (new Date(item.send_at).toLocaleDateString() === new Date().toLocaleDateString()) {
-                const date = new Date(item.send_at)
-                const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
-                const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
-                item.send_at = hours + ':' + minutes
+                item.send_at = this.$moment(item.send_at).format('HH:mm')
               } else {
-                const date = new Date(item.send_at)
-                const month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth()
-                const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
-                const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
-                const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
-                item.send_at = month + '-' + day + ' ' + hours + ':' + minutes
+                item.send_at = this.$moment(item.send_at).format('MM-DD HH:mm')
               }
             })
             this.arr = res.data
@@ -92,15 +82,11 @@ export default {
           console.log(err)
         })
     },
-    //返回并断开连接
+    //返回
     back() {
       this.$router.back()
-      this.disconnet()
       //清空消息数组
       this.arr = []
-    },
-    join() {
-      socket.emit('join', parseInt(localStorage.getItem('ID')))
     },
     //发送消息
     send() {
@@ -114,41 +100,46 @@ export default {
       }
       const data = {
         message_body: this.message,
-        to_id: this.receiver.uid,
+        to_id: this.recepter.uid,
         from_id: parseInt(this.uid),
         send_at: new Date()
       }
-      socket.emit('send', data)
-      const date = new Date(data.send_at)
-      data.send_at = date.getHours() + ':' + date.getMinutes()
+      this.$socket.emit('send', data)
+      data.send_at = this.$moment(data.send_at).format('HH:ss')
       this.arr.push(data)
       this.message = ''
     },
-    //接受消息
-    getMessage() {
-      socket.on('getMessage', data => {
-        this.arr.push(data)
-      })
+    //标记所有未读消息为已读
+    readALLMessage() {
+      const data = {
+        to_id: parseInt(this.uid),
+        from_id: parseInt(this.$route.query.to_id)
+      }
+      console.log(data)
+      userRequest
+        .post('/chat/readALLMessage', data)
+        .then(res => {
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     //监听错误
     onError() {
-      socket.on('Error', error => {
+      this.sockets.subscribe('Error', error => {
         console.log(error)
       })
     },
-    //断开连接
-    disconnet() {
-      socket.emit('out', parseInt(this.uid))
-    },
     //获取聊天对象信息
-    getUser(uid) {
+    getUser(to_id) {
       userRequest
         .get('/user/getUserByUid', {
-          params: { uid: uid }
+          params: { uid: to_id }
         })
         .then(res => {
           console.log(res.data)
-          this.receiver = res.data
+          this.recepter = res.data
         })
         .catch(err => {
           console.log(err)
@@ -169,11 +160,32 @@ export default {
     }
   },
   created() {
-    this.join()
-    this.getMessage()
-    this.getUser(parseInt(this.$route.params.uid))
+    this.getUser(parseInt(this.$route.query.to_id))
     this.getSenderUser(parseInt(this.uid))
     this.getUserChatRecord()
+    //改变所有未读消息状态为已读
+    this.readALLMessage()
+    //连接socket
+    this.$socket.open()
+    //加入房间
+    this.$socket.emit('join', parseInt(localStorage.getItem('ID')))
+    //接受消息并改变这条消息状态为已读
+    this.sockets.subscribe('getMessage', data => {
+      data.send_at = this.$moment(data.send_at).format('HH:ss')
+      this.arr.push(data)
+      console.log(data)
+      userRequest
+        .post('/chat/readMessage', data)
+        .then(res => {
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    })
+
+    //改变个人信息页徽标显示
+    this.$store.commit('change_showDot_false')
   },
   watch: {
     //监听数组的变化,滚动定位到底部
@@ -288,6 +300,7 @@ export default {
   outline-style: none;
   border-style: none;
   border-radius: 3vw;
+  font-size: 3.5vw;
 }
 .send_icon {
   position: absolute;

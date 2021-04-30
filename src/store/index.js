@@ -14,7 +14,8 @@ const store = new Vuex.Store({
         user_right: 1,
         //是否设置了支付密码
         have_pay_password: false,
-        have_banlance: false
+        have_banlance: false,
+        showDot: false
     },
     //变更集
     mutations: {
@@ -26,6 +27,12 @@ const store = new Vuex.Store({
         },
         banalce_status (state) {
             state.have_banlance = true
+        },
+        change_showDot_true (state) {
+            state.showDot = true
+        },
+        change_showDot_false (state) {
+            state.showDot = false
         }
     },
     plugins: [createPersistedState({
@@ -35,7 +42,8 @@ const store = new Vuex.Store({
                 // 只储存state中的assessmentData
                 user_right: val.user_right,
                 have_pay_password: val.have_pay_password,
-                have_banlance: val.have_banlance
+                have_banlance: val.have_banlance,
+                showDot: val.showDot
             }
         }
 

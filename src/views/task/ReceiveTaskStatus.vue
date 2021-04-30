@@ -30,7 +30,10 @@
           :src="releaseUser.avatar_url"
         />
       </div>
-      <div class="releaser_chat" @click="$router.push({path:'/chat/' + releaseUser.uid})">
+      <div
+        class="releaser_chat"
+        @click="$router.push({path:'/chat/',query:{to_id: releaseUser.uid}})"
+      >
         <icon name="chat-o" size="10vw" color="#ffd300" />发起聊天
       </div>
     </div>

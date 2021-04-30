@@ -7,6 +7,7 @@
           name="envelop-o"
           size="6vw"
           @click="$router.push('/user/message')"
+          :dot="$store.state.showDot"
         />
         <icon
           class="profile-navbar-right-icon2"
@@ -50,6 +51,7 @@ export default {
   data() {
     return {
       isLoading: false,
+      showDot: false,
       userInfo: {}
     }
   },
@@ -81,11 +83,11 @@ export default {
           //将用户是否有支付密码的状态存入仓库
           if (res.data.pay_password) {
             this.$store.commit('pay_password_status')
-          } 
+          }
           if (res.data.right === 2) {
             //改变仓库中用户权限状态
             this.$store.commit('change_user_right')
-          } 
+          }
           if (parseFloat(res.data.balance) !== 0) {
             //改变仓库中用户余额状态
             this.$store.commit('banalce_status')
@@ -95,10 +97,27 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    //获取未读信息
+    getUnreadMessage() {
+      userRequest
+        .get('/chat/getUnreadMessage', {
+          params: { to_id: localStorage.getItem('ID') }
+        })
+        .then(res => {
+          console.log(res.data)
+          if (res.data.message === 'HAVE') {
+            this.$store.commit('change_showDot_true')
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   },
   created() {
     this.getUserInfo()
+    this.getUnreadMessage()
   }
 }
 </script>

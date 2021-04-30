@@ -12,7 +12,7 @@ export default [
     },
     {
         //用户聊天界面
-        path: '/chat/:uid',
+        path: '/chat',
         component: Chat,
         meta: {
             needLogin: true

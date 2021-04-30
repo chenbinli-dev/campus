@@ -3,7 +3,7 @@ const ReleaseTask = () => import('views/task/ReleaseTask')
 const TaskDetails = () => import('views/task/TaskDetails')
 const ReceiveTaskStatus = () => import('views/task/ReceiveTaskStatus')
 const Category = () => import('views/task/Category')
-
+const Comment = () => import('views/task/Comment')
 export default [
     {
         //用户已发布或已接取任务页面
@@ -25,6 +25,14 @@ export default [
         //任务详情页面
         path: '/task/:tid',
         component: TaskDetails,
+        meta: {
+            needLogin: true
+        }
+    },
+    {
+        //任务评价页
+        path: '/task/comment/:tid',
+        component: Comment,
         meta: {
             needLogin: true
         }
