@@ -8,9 +8,8 @@
       color="#ffd300"
       title-active-color="#ffd300"
       class="tabs"
-      @click="onClick"
     >
-      <tab name="0" title="发布的任务" class="tab">
+      <tab title="发布的任务" class="tab">
         <!--下拉菜单-->
         <dropdown-menu active-color="#ffd300">
           <dropdown-item v-model="type" :options="types" @change="changeType" get-container="#app" />
@@ -28,13 +27,14 @@
           error-text="请求失败，点击重新加载"
           :finished="ReleaseTaskListFinished"
           finished-text="没有更多了"
-          offset="400"
+          offset="40"
           class="releaseTaskList"
+          :immediate-check="false"
           @load="getTaskList"
         >
           <div
-            v-for="(item,index) in TaskList"
-            :key="item.tid"
+            v-for="(item,index) in ReleaseTaskList"
+            :key="index"
             class="taskItem"
             @click="$router.push({path:'/task/'+item.tid})"
           >
@@ -75,7 +75,7 @@
         </list>
       </tab>
       <!--接取任务列表-->
-      <tab name="1" title="接取的任务">
+      <tab title="接取的任务">
         <!--下拉菜单-->
         <dropdown-menu active-color="#ffd300">
           <dropdown-item v-model="type" :options="types" @change="changeType" get-container="#app" />
@@ -93,11 +93,13 @@
           error-text="请求失败，点击重新加载"
           :finished="ReceiveTaskListFinished"
           finished-text="没有更多了"
+          offset="40"
+          :immediate-check="false"
           @load="getTaskList"
         >
           <div
-            v-for="(item,index) in TaskList"
-            :key="item.tid"
+            v-for="(item,index) in ReceiveTaskList"
+            :key="index"
             class="taskItem"
             @click="$router.push({path:'/task/receiveTask/'+item.tid})"
           >
@@ -150,7 +152,7 @@ export default {
   name: 'UserTask',
   data() {
     return {
-      active: '0',
+      active: 0,
       type: 0,
       status: 0,
       types: [
@@ -171,7 +173,8 @@ export default {
         { text: '已完成', value: 1 },
         { text: '超时', value: 2 }
       ],
-      TaskList: [],
+      ReleaseTaskList: [],
+      ReceiveTaskList: [],
       ReleaseTaskListLoading: false,
       ReleaseTaskListFinished: false,
       ReceiveTaskListLoading: false,
@@ -189,22 +192,24 @@ export default {
     Tag,
     CountDown
   },
-  methods: {
-    //选项卡点击
-    onClick(name) {
-      if (name === '0') {
+  watch: {
+    active(val) {
+      if (val === 0) {
         this.type = 0
         this.status = 0
+        this.ReleaseTaskList = []
         this.getTaskList()
-      } else if (name === '1') {
+      } else if (val === 1) {
         this.type = 0
         this.status = 0
+        this.ReceiveTaskList = []
         this.getTaskList()
       }
-    },
+    }
+  },
+  methods: {
     //获取任务列表,active代表发布或者接取，type为任务类型，status为任务状态
     getTaskList() {
-      this.TaskList = []
       userRequest
         .get('/task/getUserTaskList', {
           params: {
@@ -223,7 +228,7 @@ export default {
               message: '没有对应的任务',
               duration: 500,
               onClose: () => {
-                if (this.active === '0') {
+                if (this.active === 0) {
                   this.ReleaseTaskListLoading = false
                   this.ReleaseTaskListFinished = true
                 } else {
@@ -232,23 +237,23 @@ export default {
                 }
               }
             })
+            return
           } else {
-            if (this.active === '0') {
+            if (this.active === 0) {
               res.data.forEach(item => {
-                this.TaskList.push(item)
+                this.ReleaseTaskList.push(item)
                 this.ReleaseTaskListLoading = true
               })
-
-              if (this.TaskList.length === res.data.length) {
+              if (this.ReleaseTaskList.length === res.data.length) {
                 this.ReleaseTaskListFinished = true
               }
+              return
             } else {
               res.data.forEach(item => {
-                this.TaskList.push(item)
+                this.ReceiveTaskList.push(item)
                 this.ReceiveTaskListLoading = true
               })
-
-              if (this.TaskList.length === res.data.length) {
+              if (this.ReceiveTaskList.length === res.data.length) {
                 this.ReceiveTaskListFinished = true
               }
             }
@@ -261,17 +266,19 @@ export default {
     //监听用户点击下拉菜单
     changeType(value) {
       this.type = value
+      this.ReleaseTaskList = []
+      this.ReceiveTaskList = []
       this.getTaskList()
     },
     changeStatus(value) {
       this.status = value
+      this.ReleaseTaskList = []
+      this.ReceiveTaskList = []
       this.getTaskList()
     }
   },
-  mounted() {
-    if (sessionStorage.getItem('CACHE')) {
-      this.getTaskList()
-    }
+  created() {
+    this.getTaskList()
   }
 }
 </script >

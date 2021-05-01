@@ -108,6 +108,8 @@ export default {
           console.log(res.data)
           if (res.data.message === 'HAVE') {
             this.$store.commit('change_showDot_true')
+          } else {
+            this.$store.commit('change_showDot_false')
           }
         })
         .catch(err => {

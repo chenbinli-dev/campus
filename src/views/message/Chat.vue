@@ -50,7 +50,8 @@ export default {
       sender: {},
       message: '',
       uid: localStorage.getItem('ID'),
-      arr: []
+      arr: [],
+      showRecordTips: false
     }
   },
   components: {
@@ -58,6 +59,21 @@ export default {
     Icon
   },
   methods: {
+    //创建会话
+    createSession() {
+      const sessionBody = {
+        from_id: parseInt(localStorage.getItem('ID')),
+        to_id: parseInt(this.$route.query.to_id)
+      }
+      userRequest
+        .post('/chat/createSession', sessionBody)
+        .then(res => {
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     //获取用户聊天记录
     getUserChatRecord() {
       userRequest
@@ -109,7 +125,7 @@ export default {
       this.arr.push(data)
       this.message = ''
     },
-    //标记所有未读消息为已读
+    //标记对方的所有未读消息为已读
     readALLMessage() {
       const data = {
         to_id: parseInt(this.uid),
@@ -163,6 +179,8 @@ export default {
     this.getUser(parseInt(this.$route.query.to_id))
     this.getSenderUser(parseInt(this.uid))
     this.getUserChatRecord()
+    //创建会话
+    this.createSession()
     //改变所有未读消息状态为已读
     this.readALLMessage()
     //连接socket
@@ -281,6 +299,10 @@ export default {
   color: rgba(25, 29, 35, 1);
   width: fit-content;
   line-height: 4vw;
+}
+.tips {
+  display: block;
+  display: -webkit-box;
 }
 .input {
   position: fixed;
