@@ -4,6 +4,7 @@ const TaskDetails = () => import('views/task/TaskDetails')
 const ReceiveTaskStatus = () => import('views/task/ReceiveTaskStatus')
 const Category = () => import('views/task/Category')
 const Comment = () => import('views/task/Comment')
+const Complaint = () => import('views/task/Complaint')
 export default [
     {
         //用户已发布或已接取任务页面
@@ -35,6 +36,14 @@ export default [
         component: Comment,
         meta: {
             needLogin: true
+        }
+    },
+    {
+        //任务投诉页
+        path:'/task/complaint/:tid',
+        component:Complaint,
+        meta:{
+            needLogin:true
         }
     },
     {

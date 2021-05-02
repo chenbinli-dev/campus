@@ -19,7 +19,8 @@
             <tag v-if="taskInfo.status === 1" color="#7232dd">闲置</tag>
             <tag v-else-if="taskInfo.status === 2" type="primary">接取</tag>
             <tag v-else-if="taskInfo.status === 3" type="success">完成</tag>
-            <tag v-else type="danger">过期</tag>
+            <tag v-else-if="taskInfo.status === 4" type="warning">过期</tag>
+            <tag v-else type="danger">超时</tag>
           </template>
         </cell>
         <cell
@@ -178,7 +179,19 @@
             })"
           >已完成,去评价</span>
           <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 4">已过期</span>
-          <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5">已超时</span>
+          <span
+            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5 && haveComplaint === false"
+            class="complaint"
+            @click="$router.push('/task/complaint/'+taskInfo.tid)"
+          >
+            <icon name="flag-o" size="8vw" />投诉
+          </span>
+             <span
+            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5 && haveComplaint === true"
+            class="complaint"
+          >
+            <icon name="flag-o" size="8vw" />已投诉
+          </span>
         </div>
       </div>
     </div>
@@ -213,7 +226,8 @@ export default {
       taskInfo: {},
       process: {},
       activeName: [],
-      active: null
+      active: null,
+      haveComplaint:false
     }
   },
   computed: {
@@ -283,6 +297,7 @@ export default {
             ) {
               this.getReceiveUser(this.taskInfo.tid)
               this.getTaskProcess(this.taskInfo.tid)
+              this.getComplaintStatus(this.taskInfo.task_number)
             }
           }
           // //改变任务进度显示
@@ -361,6 +376,21 @@ export default {
             } else if (this.process.obtain_delivery === 1) {
               this.active = 1
             }
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //获取投诉状态
+    getComplaintStatus(task_number) {
+      userRequest
+        .get('/task/getComplaintStatus', {
+          params: { task_number: task_number, uid: localStorage.getItem('ID') }
+        })
+        .then(res => {
+          if(res.data.num !== 0) {
+            this.haveComplaint = true
           }
         })
         .catch(err => {
@@ -522,5 +552,11 @@ export default {
   font-size: 4vw;
   color: #fff;
   background-color: #ffd300;
+}
+.complaint {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5vw;
 }
 </style>

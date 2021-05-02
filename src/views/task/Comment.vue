@@ -15,9 +15,41 @@
       </cell>
       <cell title="任务用时" size="large">{{getTimeRecord}}</cell>
       <cell title="评分" size="large" allow-half>
-        <rate v-model="comment.rate" :size="25" color="#ffd21e" void-icon="star" void-color="#eee" />
+        <!--有评价记录-->
+        <rate
+          v-if="comment_have"
+          v-model="comment_have_rate"
+          :size="25"
+          color="#ffd21e"
+          void-icon="star"
+          void-color="#eee"
+          readonly
+        />
+        <!--没有评价记录-->
+        <rate
+          v-else
+          v-model="comment.rate"
+          :size="25"
+          color="#ffd21e"
+          void-icon="star"
+          void-color="#eee"
+        />
       </cell>
+      <!--有评价记录-->
       <field
+        v-if="comment_have"
+        v-model="comment_have_content"
+        rows="5"
+        autosize
+        size="large"
+        label="评价内容"
+        type="textarea"
+        maxlength="150"
+        readonly
+      />
+      <!--没有评价记录-->
+      <field
+        v-else
         v-model="comment.content"
         rows="5"
         autosize
@@ -29,7 +61,8 @@
         clearable
         show-word-limit
       />
-      <cell>
+      <cell v-if="comment_have" title="评价时间" size="large">{{comment_have_createAt}}</cell>
+      <cell v-if="!comment_have">
         <van-button color="#ffd300" size="large" @click="onSubmit">提交</van-button>
       </cell>
     </cell-group>
@@ -49,7 +82,11 @@ export default {
       comment: {
         rate: 0,
         content: ''
-      }
+      },
+      comment_have: false,
+      comment_have_rate: 0,
+      comment_have_content: '',
+      comment_have_createAt: ''
     }
   },
   components: {
@@ -94,6 +131,7 @@ export default {
         .then(res => {
           if (res.data) {
             this.taskInfo = res.data
+            this.getTaskCommentStatus(res.data.task_number)
           }
         })
         .catch(err => {
@@ -109,6 +147,24 @@ export default {
         .then(res => {
           if (res.data) {
             this.process = res.data
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //获取评价状态
+    getTaskCommentStatus(task_number) {
+      userRequest
+        .get('/task/getTaskCommentStatus', {
+          params: { task_number: task_number, releaser_id: localStorage.getItem('ID') }
+        })
+        .then(res => {
+          if (res.data !== '') {
+            this.comment_have = true
+            this.comment_have_rate = res.data.rate
+            this.comment_have_content = res.data.content
+            this.comment_have_createAt = this.$moment(res.data.createAt).format('YYYY-MM-DD HH:mm:ss')
           }
         })
         .catch(err => {
