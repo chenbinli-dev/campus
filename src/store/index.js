@@ -22,11 +22,20 @@ const store = new Vuex.Store({
         change_user_right (state) {
             state.user_right = 2
         },
+        change_user_right_default (state) {
+            state.user_right = 1
+        },
         pay_password_status (state) {
             state.have_pay_password = true
         },
+        pay_password_status_default (state) {
+            state.have_pay_password = false
+        },
         banalce_status (state) {
             state.have_banlance = true
+        },
+        banalce_status_default (state) {
+            state.have_banlance = false
         },
         change_showDot_true (state) {
             state.showDot = true
@@ -36,6 +45,7 @@ const store = new Vuex.Store({
         }
     },
     plugins: [createPersistedState({
+        storage: window.loaclStorage,
         reducer (val) {
             //配置需要存储到localstorage的state
             return {

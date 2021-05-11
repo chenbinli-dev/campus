@@ -5,6 +5,7 @@
         <icon name="arrow-left" size="6vw" @click="$router.back()" />
       </template>
     </nav-bar>
+    <van-row v-if="session.length === 0" type="flex" justify="center" class="empty_tips">当前没有会话</van-row>
     <swipe-cell>
       <van-row
         class="messageList"
@@ -143,7 +144,11 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.empty_tips {
+  padding: 2vw;
+  font-size: 3.5vw;
+}
 .messageList {
   padding: 2vw;
   background-color: #fff;

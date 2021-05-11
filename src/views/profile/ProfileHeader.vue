@@ -18,7 +18,7 @@
         width="100%"
         height="100%"
         radius="50%"
-        :src="require('../../assets/img/default_avatar_svg')"
+        :src="require('../../assets/img/default_avatar.svg')"
       />
     </div>
     <div id="userInfo_Mid" class="userInfo_Mid">

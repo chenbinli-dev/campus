@@ -51,7 +51,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .setting_list {
   margin: 2vw 2vw 0 2vw;
 }

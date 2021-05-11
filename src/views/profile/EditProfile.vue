@@ -9,19 +9,19 @@
       </template>
     </nav-bar>
 
-    <div class="uploaderFile">
-      <uploader
-        class="uploaderImg"
-        :preview-image="false"
-        accept="image/png, image/jpeg, image/jpg"
-        capture="camera "
-        :after-read="afterRead"
-      />
-      <edit-input>
-        <span slot="left">头像</span>
+    <uploader
+      class="uploader"
+      accept="image/png, image/jpeg, image/jpg"
+      :deletable="false"
+      :max-count="1"
+      :after-read="afterRead"
+    >
+      <cell is-link size="large" :center="true" class="avatar">
+        <template #title>
+          <span>头像</span>
+        </template>
         <van-image
           v-if="userInfo.avatar_url"
-          slot="right"
           :src="userInfo.avatar_url"
           width="10vw"
           height="10vw"
@@ -30,43 +30,44 @@
         <van-image
           v-else
           name="default_image"
-          slot="right"
           width="10vw"
           height="10vw"
           round
           :src="require('../../assets/img/default_avatar.svg')"
         />
-      </edit-input>
-    </div>
+      </cell>
+    </uploader>
+    <cell-group>
+      <cell :value="userInfo.username">
+        <template #title>
+          <span>账号</span>
+        </template>
+      </cell>
 
-    <edit-input>
-      <span slot="left">账号</span>
-      <span slot="right">{{ userInfo.username }}</span>
-    </edit-input>
+      <cell :value="userInfo.nickname" is-link @click="nicknameShow = true">
+        <template #title>
+          <span>昵称</span>
+        </template>
+      </cell>
 
-    <edit-input @InputClick="nicknameShow = true">
-      <span slot="left">昵称</span>
-      <span v-if="userInfo.nickname" slot="right">{{ userInfo.nickname }}</span>
-      <span v-else slot="right">未设置</span>
-    </edit-input>
+      <cell :value="handleGender" is-link @click="genderShow = true">
+        <template #title>
+          <span>性别</span>
+        </template>
+      </cell>
 
-    <edit-input @InputClick="genderShow = true">
-      <span slot="left">性别</span>
-      <span v-if="userInfo.gender" slot="right">{{ userInfo.gender === 100 ? '男' : '女' }}</span>
-      <span v-else slot="right">未设置</span>
-    </edit-input>
+      <cell :value="userInfo.telephone" is-link @click="telephoneShow = true">
+        <template #title>
+          <span>联系电话</span>
+        </template>
+      </cell>
 
-    <edit-input @InputClick="telephoneShow = true">
-      <span slot="left">联系电话</span>
-      <span v-if="userInfo.telephone" slot="right">{{ userInfo.telephone }}</span>
-      <span v-else slot="right">未设置</span>
-    </edit-input>
-
-    <edit-input @InputClick="calendarShow = true">
-      <span slot="left">生日</span>
-      <span slot="right" v-if="userInfo.brithday">{{ userInfo.brithday }}</span>
-      <span slot="right" v-else>未设置</span>
-    </edit-input>
+      <cell :value="userInfo.brithday" is-link @click="showTimeSelect = true">
+        <template #title>
+          <span>生日</span>
+        </template>
+      </cell>
+    </cell-group>
 
     <van-dialog title="昵称" v-model="nicknameShow" show-cancel-button @confirm="nicknameConfirm">
       <field v-model="nickname" autofocus />
@@ -78,27 +79,30 @@
 
     <action-sheet v-model="genderShow" :actions="userGender" cancel-text="取消" @select="onSelect" />
 
-    <calendar
-      type="single"
-      color="#ffd300"
-      :min-date="minDate"
-      :max-date="maxDate"
-      v-model="calendarShow"
-      @confirm="onConfirm"
-    />
+    <popup v-model="showTimeSelect" position="bottom" :style="{ height: '40%' }">
+      <datetime-picker
+        type="date"
+        title="选择年月日"
+        :min-date="minDate"
+        :max-date="maxDate"
+        @confirm="timeSelect"
+        @cancel="showTimeSelect = false"
+      />
+    </popup>
   </div>
 </template>
 
 <script>
-const EditInput = () => import('components/common/input/EditInput')
-
 import {
   NavBar,
   Icon,
+  Cell,
+  CellGroup,
   Uploader,
   Image as VanImage,
   ActionSheet,
-  Calendar,
+  DatetimePicker,
+  Popup,
   Dialog,
   Field,
   Toast
@@ -109,12 +113,14 @@ export default {
   name: 'EditProfile',
   components: {
     NavBar,
-    EditInput,
+    Cell,
+    CellGroup,
     Icon,
     Uploader,
     VanImage,
     ActionSheet,
-    Calendar,
+    DatetimePicker,
+    Popup,
     [Dialog.Component.name]: Dialog.Component,
     Field
   },
@@ -127,12 +133,13 @@ export default {
         nickname: '',
         gender: null,
         telephone: '',
-        brithday: ''
+        brithday: null
       },
+      default_avatar: [],
       nicknameShow: false,
       telephoneShow: false,
       genderShow: false,
-      calendarShow: false,
+      showTimeSelect: false,
       nickname: '',
       telephone: '',
       userGender: [
@@ -140,8 +147,21 @@ export default {
         { name: '女', val: 200 }
       ],
       //自定义日历日期
-      minDate: new Date(1899, 0, 1),
+      minDate: new Date(1990, 0, 1),
       maxDate: new Date(2015, 0, 31)
+    }
+  },
+  computed: {
+    handleGender() {
+      let gender
+      if (this.userInfo.gender === 100) {
+        gender = '男'
+      } else if (this.userInfo.gender === 200) {
+        gender = '女'
+      } else if (!this.userInfo.gender) {
+        gender = '未设置'
+      }
+      return gender
     }
   },
   methods: {
@@ -158,10 +178,22 @@ export default {
           this.userInfo.username = res.data.username
           //加上时间戳，实现图片的刷新
           this.userInfo.avatar_url = res.data.avatar_url + '?time=' + Date.now()
-          this.userInfo.nickname = res.data.nickname
+          if (res.data.nickname) {
+            this.userInfo.nickname = res.data.nickname
+          } else {
+            this.userInfo.nickname = '未设置'
+          }
           this.userInfo.gender = res.data.gender
-          this.userInfo.telephone = res.data.telephone
-          this.userInfo.brithday = res.data.brithday
+          if (res.data.telephone) {
+            this.userInfo.telephone = res.data.telephone
+          } else {
+            this.userInfo.telephone = '未设置'
+          }
+          if (res.data.brithday) {
+            this.userInfo.brithday = res.data.brithday
+          } else {
+            this.userInfo.brithday = '未设置'
+          }
         })
         .catch(err => {
           console.log(err)
@@ -266,13 +298,10 @@ export default {
       this.userInfo.gender = data.val
       this.genderShow = false
     },
-    formatDate(date) {
-      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-    },
     //选择日期后
-    onConfirm(date) {
-      this.userInfo.brithday = this.formatDate(date)
-      this.calendarShow = false
+    timeSelect(date) {
+      this.userInfo.brithday = this.$moment(date).format('YYYY-MM-DD')
+      this.showTimeSelect = false
     }
   },
   created() {
@@ -281,14 +310,12 @@ export default {
 }
 </script>
 
-<style scoped>
-.uploaderFile {
-  margin-top: 2vw;
+<style>
+.uploader {
   position: relative;
-  overflow: hidden;
+  width: 100%;
 }
-.uploaderImg {
-  position: absolute;
-  opacity: 0;
+.uploader .van-uploader__input-wrapper {
+  width: 100%;
 }
 </style>

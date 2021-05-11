@@ -24,8 +24,7 @@
         color="#ffd300"
         size="large"
         @click="confirmValue"
-        >支付{{ this.selectValue }}元</van-button
-      >
+      >支付{{ this.selectValue }}元</van-button>
     </div>
     <ul class="tips">
       <li>Tps:</li>
@@ -41,16 +40,12 @@
     >
       <div class="pay_ways">
         <radio-group v-model="pay_methods">
-          <radio name="wechat" checked-color="#ffd300"
-            ><img
-              src="~assets/img/pay_wechat.svg"
-              style="width: 10vw; height: 10vw"
-          /></radio>
-          <radio name="alipay" checked-color="#ffd300"
-            ><img
-              src="~assets/img/pay_alipay.svg"
-              style="width: 10vw; height: 10vw"
-          /></radio>
+          <radio name="wechat" checked-color="#ffd300">
+            <img src="~assets/img/pay_wechat.svg" style="width: 10vw; height: 10vw" />
+          </radio>
+          <radio name="alipay" checked-color="#ffd300">
+            <img src="~assets/img/pay_alipay.svg" style="width: 10vw; height: 10vw" />
+          </radio>
         </radio-group>
       </div>
     </van-dialog>
@@ -58,11 +53,21 @@
 </template>
 
 <script>
-import { NavBar, Icon, Grid, GridItem, Button as VanButton, Dialog, RadioGroup, Radio, Toast } from 'vant'
+import {
+  NavBar,
+  Icon,
+  Grid,
+  GridItem,
+  Button as VanButton,
+  Dialog,
+  RadioGroup,
+  Radio,
+  Toast
+} from 'vant'
 import userRequest from 'network/http'
 export default {
   name: 'Recharge',
-  data () {
+  data() {
     return {
       values: ['20.00', '30.00', '50.00', '70.00', '100.00', '150.00'],
       selectValue: '20.00',
@@ -83,21 +88,22 @@ export default {
   },
   methods: {
     //提交支付金额
-    confirmValue () {
+    confirmValue() {
       console.log(this.selectValue)
       this.select_pay_method_show = true
     },
     //跳转第三方支付平台进行支付，这里做模拟
-    confirm_recharge () {
+    confirm_recharge() {
       console.log(this.pay_methods)
       const requestDate = {
         recharge_value: this.selectValue,
         pay_methods: this.pay_methods,
         uid: localStorage.getItem('ID')
       }
-      userRequest.post('/balance/recharge', requestDate, {
-        headers: { 'Authorization': localStorage.getItem('TOKEN') }
-      })
+      userRequest
+        .post('/balance/recharge', requestDate, {
+          headers: { Authorization: localStorage.getItem('TOKEN') }
+        })
         .then(res => {
           console.log(res)
           if (res.data.message === 'RECHARGE_SUCCESS' && res.data.statusCode === 200) {
@@ -110,13 +116,12 @@ export default {
         .catch(err => {
           console.log(err)
         })
-
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .chooseValue {
   padding: 2vw;
 }

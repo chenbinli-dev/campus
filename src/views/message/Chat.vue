@@ -219,7 +219,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .navbar {
   position: absolute;
   left: 0;

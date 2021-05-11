@@ -85,7 +85,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .show_verifying_image {
   margin-top: 5vw;
   width: 100%;

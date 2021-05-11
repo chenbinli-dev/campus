@@ -341,7 +341,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .navbar {
   margin-bottom: 2vw;
 }

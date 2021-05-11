@@ -45,7 +45,7 @@
               <tag v-else-if="item.status === 2" type="primary">接取</tag>
               <tag v-else-if="item.status === 3" type="success">完成</tag>
               <tag v-else-if="item.status === 4" type="warning">过期</tag>
-                <tag v-else type="danger">超时</tag>
+              <tag v-else type="danger">超时</tag>
             </div>
             <div class="itemBody">
               <span class="countDown">
@@ -284,7 +284,7 @@ export default {
 }
 </script >
 
-<style>
+<style scoped>
 .usertask {
   height: 100%;
   padding-bottom: 12vw;
