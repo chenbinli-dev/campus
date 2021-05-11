@@ -14,13 +14,11 @@
         <template slot:error>加载失败</template>
       </van-image>
       <van-image
+        v-else
         width="100%"
         height="100%"
         radius="50%"
-        lazy-load:true
-        show-loading
-        v-else
-        src="~assets/img/default_img.jpg"
+        :src="require('../../assets/img/default_avatar_svg')"
       />
     </div>
     <div id="userInfo_Mid" class="userInfo_Mid">
@@ -53,7 +51,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .userInfo {
   height: 22vw;
   margin: 2vw 2vw;

@@ -19,8 +19,12 @@
       clearable="true"
       @emitContent="(res) => (this.userInfo.password = res)"
     />
-    <van-button round color="#ffd300" size="large" class="loginButton" @click="Login">登录</van-button>
-    <div class="goRegister" @click="$router.push('/user/register')">没有账号？立即注册</div>
+    <van-row>
+      <van-button round color="#ffd300" size="large" class="loginButton" @click="Login">登录</van-button>
+    </van-row>
+    <van-row class="goRegister">
+      <p @click="$router.push('/user/register')">没有账号？立即注册</p>
+    </van-row>
     <div id="bottom-ico" class="bottom-ico">
       <img class="logo" src="../../assets/img/logo.svg" />
     </div>
@@ -30,7 +34,7 @@
 <script>
 //导入组件
 const TextInput = () => import('components/common/input/TextInput')
-import { Toast, Button as VanButton } from 'vant'
+import { Toast, Button as VanButton, Row as VanRow } from 'vant'
 import userRequest from 'network/http'
 
 export default {
@@ -46,7 +50,8 @@ export default {
   },
   components: {
     TextInput,
-    VanButton
+    VanButton,
+    VanRow
   },
   methods: {
     //用户登录
@@ -106,7 +111,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .login {
   height: 100%;
   padding: 10vw 10vw 0;

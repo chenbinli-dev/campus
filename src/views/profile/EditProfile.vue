@@ -12,19 +12,30 @@
     <div class="uploaderFile">
       <uploader
         class="uploaderImg"
-        preview-size="100vw"
-        accept="image/png, image/jpeg,image/jpg"
+        :preview-image="false"
+        accept="image/png, image/jpeg, image/jpg"
         capture="camera "
         :after-read="afterRead"
       />
       <edit-input>
         <span slot="left">头像</span>
-        <img
-          slot="right"
+        <van-image
           v-if="userInfo.avatar_url"
+          slot="right"
           :src="userInfo.avatar_url"
+          width="10vw"
+          height="10vw"
+          round
         />
-        <img slot="right" v-else src="~assets/img/default_img.jpg" />
+        <van-image
+          v-else
+          name="default_image"
+          slot="right"
+          width="10vw"
+          height="10vw"
+          round
+          :src="require('../../assets/img/default_avatar.svg')"
+        />
       </edit-input>
     </div>
 
@@ -34,59 +45,38 @@
     </edit-input>
 
     <edit-input @InputClick="nicknameShow = true">
-      <span slot="left">昵称 </span>
-      <span v-if="userInfo.nickname" slot="right">
-        {{ userInfo.nickname }}
-      </span>
+      <span slot="left">昵称</span>
+      <span v-if="userInfo.nickname" slot="right">{{ userInfo.nickname }}</span>
       <span v-else slot="right">未设置</span>
     </edit-input>
 
     <edit-input @InputClick="genderShow = true">
       <span slot="left">性别</span>
-      <span v-if="userInfo.gender" slot="right">
-        {{ userInfo.gender === 100 ? '男' : '女' }}
-      </span>
+      <span v-if="userInfo.gender" slot="right">{{ userInfo.gender === 100 ? '男' : '女' }}</span>
       <span v-else slot="right">未设置</span>
     </edit-input>
 
     <edit-input @InputClick="telephoneShow = true">
-      <span slot="left">联系电话 </span>
-      <span v-if="userInfo.telephone" slot="right">
-        {{ userInfo.telephone }}
-      </span>
+      <span slot="left">联系电话</span>
+      <span v-if="userInfo.telephone" slot="right">{{ userInfo.telephone }}</span>
       <span v-else slot="right">未设置</span>
     </edit-input>
 
     <edit-input @InputClick="calendarShow = true">
-      <span slot="left">生日 </span>
+      <span slot="left">生日</span>
       <span slot="right" v-if="userInfo.brithday">{{ userInfo.brithday }}</span>
       <span slot="right" v-else>未设置</span>
     </edit-input>
 
-    <van-dialog
-      title="昵称"
-      v-model="nicknameShow"
-      show-cancel-button
-      @confirm="nicknameConfirm"
-    >
-      <field v-model="nickname" autofocus="" />
+    <van-dialog title="昵称" v-model="nicknameShow" show-cancel-button @confirm="nicknameConfirm">
+      <field v-model="nickname" autofocus />
     </van-dialog>
 
-    <van-dialog
-      title="联系电话"
-      v-model="telephoneShow"
-      show-cancel-button
-      @confirm="telephoneConfirm"
-    >
-      <field v-model="telephone" autofocus="" />
+    <van-dialog title="联系电话" v-model="telephoneShow" show-cancel-button @confirm="telephoneConfirm">
+      <field v-model="telephone" autofocus />
     </van-dialog>
 
-    <action-sheet
-      v-model="genderShow"
-      :actions="userGender"
-      cancel-text="取消"
-      @select="onSelect"
-    />
+    <action-sheet v-model="genderShow" :actions="userGender" cancel-text="取消" @select="onSelect" />
 
     <calendar
       type="single"
@@ -100,11 +90,20 @@
 </template>
 
 <script>
-const EditInput = () => import("components/common/input/EditInput")
+const EditInput = () => import('components/common/input/EditInput')
 
-import { NavBar, Icon, Uploader, ActionSheet, Calendar, Dialog, Field, Toast } from 'vant'
+import {
+  NavBar,
+  Icon,
+  Uploader,
+  Image as VanImage,
+  ActionSheet,
+  Calendar,
+  Dialog,
+  Field,
+  Toast
+} from 'vant'
 import userRequest from 'network/http'
-
 
 export default {
   name: 'EditProfile',
@@ -113,17 +112,18 @@ export default {
     EditInput,
     Icon,
     Uploader,
+    VanImage,
     ActionSheet,
     Calendar,
     [Dialog.Component.name]: Dialog.Component,
     Field
   },
   inject: ['reload'],
-  data () {
+  data() {
     return {
       userInfo: {
         username: '',
-        avatar_url: '',
+        avatar_url: null,
         nickname: '',
         gender: null,
         telephone: '',
@@ -135,17 +135,20 @@ export default {
       calendarShow: false,
       nickname: '',
       telephone: '',
-      userGender: [{ name: '男', val: 100 }, { name: '女', val: 200 }],
+      userGender: [
+        { name: '男', val: 100 },
+        { name: '女', val: 200 }
+      ],
       //自定义日历日期
       minDate: new Date(1899, 0, 1),
-      maxDate: new Date(2015, 0, 31),
+      maxDate: new Date(2015, 0, 31)
     }
   },
   methods: {
     //获取用户信息
-    getUserInfo () {
-      userRequest.get('/user/getUserByUid',
-        {
+    getUserInfo() {
+      userRequest
+        .get('/user/getUserByUid', {
           params: {
             uid: localStorage.getItem('ID')
           }
@@ -165,7 +168,7 @@ export default {
         })
     },
     //提交用户信息的修改
-    updateInfo () {
+    updateInfo() {
       console.log(this.userInfo)
       //1.判断用户信息填写,昵称不能为空
       if (!this.userInfo.nickname) {
@@ -188,9 +191,10 @@ export default {
         return
       }
       //2.进行用户信息更新
-      userRequest.post('/user/updateUserInfo', this.userInfo, {
-        headers: { 'Authorization': localStorage.getItem('TOKEN') }
-      })
+      userRequest
+        .post('/user/updateUserInfo', this.userInfo, {
+          headers: { Authorization: localStorage.getItem('TOKEN') }
+        })
         .then(res => {
           if (res.data.statusCode === 200) {
             this.$toast({
@@ -212,20 +216,21 @@ export default {
         })
     },
     //文件读取完毕后
-    afterRead (file) {
+    afterRead(file) {
       //将文件信息放入表单中，上传后台
       const formData = new FormData()
-      formData.append("avatar", file.file)
+      formData.append('avatar', file.file)
 
-      userRequest.post('/upload/avatar', formData, {
-        headers: { 'Authorization': localStorage.getItem('TOKEN') }
-      })
+      userRequest
+        .post('/upload/avatar', formData, {
+          headers: { Authorization: localStorage.getItem('TOKEN') }
+        })
         .then(res => {
           if (res.data.message === 'UPLOAD_SUCCESS') {
             this.$forceUpdate()
             this.$toast({
               type: 'success',
-              message: '上传成功',
+              message: '上传成功'
             })
           } else {
             this.$toast({
@@ -239,11 +244,11 @@ export default {
           console.log(err)
         })
     },
-    nicknameConfirm () {
+    nicknameConfirm() {
       this.userInfo.nickname = this.nickname
       this.nicknameShow = false
     },
-    telephoneConfirm () {
+    telephoneConfirm() {
       const teltphoneRule = /^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/
       if (teltphoneRule.test(this.telephone)) {
         this.userInfo.telephone = this.telephone
@@ -257,26 +262,26 @@ export default {
       }
     },
     //用户选择性别之后
-    onSelect (data) {
+    onSelect(data) {
       this.userInfo.gender = data.val
       this.genderShow = false
     },
-    formatDate (date) {
+    formatDate(date) {
       return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
     },
     //选择日期后
-    onConfirm (date) {
+    onConfirm(date) {
       this.userInfo.brithday = this.formatDate(date)
       this.calendarShow = false
     }
   },
-  created () {
+  created() {
     this.getUserInfo()
   }
 }
 </script>
 
-<style>
+<style scoped>
 .uploaderFile {
   margin-top: 2vw;
   position: relative;

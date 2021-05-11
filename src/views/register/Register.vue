@@ -314,7 +314,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .register {
   height: 100%;
   padding: 10vw 10vw 0 10vw;
