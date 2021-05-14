@@ -17,6 +17,12 @@
         />
       </template>
     </nav-bar>
+    <!--账号禁用提示-->
+    <notice-bar
+      v-if="this.$store.state.is_forbidden === 1"
+      :text="forbidden_text"
+      left-icon="warning-o"
+    />
     <!--个人主页-->
     <pull-refresh
       v-model="isLoading"
@@ -43,7 +49,7 @@ const Tabbar = () => import('components/common/tabbar/Tabbar')
 
 const ProfileHeader = () => import('./ProfileHeader')
 
-import { NavBar, PullRefresh, Icon, Cell } from 'vant'
+import { NavBar, NoticeBar, PullRefresh, Icon, Cell, Toast } from 'vant'
 import userRequest from 'network/http'
 
 export default {
@@ -51,6 +57,7 @@ export default {
   inject: ['reload'],
   data() {
     return {
+      forbidden_text: '',
       isLoading: false,
       showDot: false,
       userInfo: {}
@@ -58,6 +65,7 @@ export default {
   },
   components: {
     NavBar,
+    NoticeBar,
     Tabbar,
     ProfileHeader,
     Cell,
@@ -80,7 +88,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data.right)
+          console.log(res.data)
           //将用户是否有支付密码的状态存入仓库
           if (res.data.pay_password) {
             this.$store.commit('pay_password_status')
@@ -98,6 +106,18 @@ export default {
             this.$store.commit('banalce_status')
           } else {
             this.$store.commit('banalce_status_default')
+          }
+
+          //判断用户是否被禁用
+          if (res.data.is_forbidden === 1) {
+            this.getForbiddenInfo()
+            this.$store.commit('is_forbidden_true')
+            Toast({
+              type: 'fail',
+              message: '该账号已被禁用'
+            })
+          } else {
+            this.$store.commit('is_forbidden_false')
           }
           this.userInfo = res.data
         })
@@ -118,6 +138,34 @@ export default {
           } else {
             this.$store.commit('change_showDot_false')
           }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    //获取禁用信息
+    getForbiddenInfo() {
+      userRequest
+        .get('/user/getUserForbiddenInfo', {
+          params: {
+            uid: localStorage.getItem('ID')
+          }
+        })
+        .then(res => {
+          console.log(res.data)
+          let type = ''
+          if (res.data.type === 0) {
+            type = '暂时禁用'
+          } else {
+            type = '永久禁用'
+          }
+          this.forbidden_text =
+            '禁用类型：' +
+            type +
+            '，禁用原因：' +
+            res.data.reason +
+            '，禁用时间：' +
+            this.$moment(res.data.createAt).format('YYYY-MM-DD HH:mm:ss')
         })
         .catch(err => {
           console.log(err)

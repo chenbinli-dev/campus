@@ -34,7 +34,7 @@
       <field
         required
         name="uploader"
-        label="上传代取件码"
+        label="上传身份码"
         v-if="taskType === '代取快递'"
         style="font-size: 4vw"
       >
@@ -459,8 +459,8 @@ export default {
               message: '发布任务中',
               forbidClick: true,
               loadingType: 'spinner',
-              onClose:() => {
-                 this.confirmRelease()
+              onClose: () => {
+                this.confirmRelease()
               }
             })
           }
@@ -487,7 +487,12 @@ export default {
         task.append('estimated_amount', this.estimated_amount)
       }
       task.append('commission', this.commission)
-      task.append('expiration_time', this.$moment().add(this.validTime, 'days').format('YYYY-MM-DD HH:mm:ss'))
+      task.append(
+        'expiration_time',
+        this.$moment()
+          .add(this.validTime, 'days')
+          .format('YYYY-MM-DD HH:mm:ss')
+      )
       task.append('addressee', this.addressee)
       task.append('telephone', this.telephone)
       task.append('address', this.address)

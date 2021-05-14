@@ -15,7 +15,8 @@ const store = new Vuex.Store({
         //是否设置了支付密码
         have_pay_password: false,
         have_banlance: false,
-        showDot: false
+        showDot: false,
+        is_forbidden: 0
     },
     //变更集
     mutations: {
@@ -42,6 +43,12 @@ const store = new Vuex.Store({
         },
         change_showDot_false (state) {
             state.showDot = false
+        },
+        is_forbidden_true (state) {
+            state.is_forbidden = 1
+        },
+        is_forbidden_false (state) {
+            state.is_forbidden = 0
         }
     },
     plugins: [createPersistedState({
@@ -53,7 +60,8 @@ const store = new Vuex.Store({
                 user_right: val.user_right,
                 have_pay_password: val.have_pay_password,
                 have_banlance: val.have_banlance,
-                showDot: val.showDot
+                showDot: val.showDot,
+                is_forbidden: val.is_forbidden
             }
         }
 

@@ -117,6 +117,12 @@ export default {
           message: '余额不足'
         })
         return
+      } else if (this.$store.state.is_forbidden === 1) {
+        Toast({
+          type: 'fail',
+          message: '该账号已禁用'
+        })
+        return
       } else {
         this.typeSelectShow = true
       }
@@ -127,6 +133,12 @@ export default {
         Toast({
           type: 'fail',
           message: '您还未进行身份验证'
+        })
+        return
+      } else if (this.$store.state.is_forbidden === 1) {
+        Toast({
+          type: 'fail',
+          message: '该账号已禁用'
         })
         return
       }

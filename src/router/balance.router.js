@@ -1,6 +1,7 @@
 const Balance = () => import('views/balance/Balance')
 const Recharge = () => import('views/balance/Recharge')
 const Withdraw = () => import('views/balance/Withdraw')
+const Record = () => import('views/balance/Record')
 
 export default [
     {
@@ -27,4 +28,12 @@ export default [
             needLogin: true
         }
     },
+    {
+        //余额记录
+        path: '/user/balanceRecord',
+        component: Record,
+        meta: {
+            needLogin: true
+        }
+    }
 ]

@@ -42,7 +42,7 @@
         native-type="submit"
         color="#ffd300"
         text="修改"
-        style="font-size: 5vw; margin-top: 2vw"
+        style="font-size: 4.5vw; margin-top: 2vw"
       />
     </van-form>
   </div>
@@ -78,7 +78,7 @@ export default {
       }
       userRequest
         .post('/user/updatePassword', req, {
-          headers: { 'Authorization': localStorage.getItem('TOKEN') }
+          headers: { Authorization: localStorage.getItem('TOKEN') }
         })
         .then(res => {
           console.log(res)

@@ -258,6 +258,13 @@ export default {
     },
     //改变进程
     changeProcess(procedure) {
+      if (this.$store.state.is_forbidden === 1) {
+        Toast({
+          type: 'fail',
+          message: '该账号已禁用'
+        })
+        return
+      }
       const changes = {
         status: procedure,
         process_id: this.process.id

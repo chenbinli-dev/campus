@@ -4,6 +4,9 @@
       <template #left>
         <icon name="arrow-left" size="6vw" @click="$router.back()" />
       </template>
+      <template #right>
+        <span style="font-size:5vw" @click="$router.push('/user/balanceRecord')">账单</span>
+      </template>
     </nav-bar>
 
     <pull-refresh v-model="isLoading" success-text="刷新成功" @refresh="onRefresh" class="refreshBody">
