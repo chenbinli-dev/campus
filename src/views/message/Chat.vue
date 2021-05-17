@@ -100,6 +100,8 @@ export default {
     },
     //返回
     back() {
+      //发送离开房间事件
+      this.$socket.emit('leave', parseInt(localStorage.getItem('ID')))
       this.$router.back()
       //清空消息数组
       this.arr = []
@@ -187,11 +189,10 @@ export default {
     this.$socket.open()
     //加入房间
     this.$socket.emit('join', parseInt(localStorage.getItem('ID')))
-    //接受消息并改变这条消息状态为已读
+    //对方处于聊天界面，接受消息并改变这条消息状态为已读
     this.sockets.subscribe('getMessage', data => {
       data.send_at = this.$moment(data.send_at).format('HH:ss')
       this.arr.push(data)
-      console.log(data)
       userRequest
         .post('/chat/readMessage', data)
         .then(res => {

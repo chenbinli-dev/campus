@@ -59,7 +59,7 @@ export default {
       //对用户名和密码进行校验，是否符合规范
       const usernameRule1 = /[a-zA-Z0-9_]{7,19}$/
       const usernameRule2 = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-      const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
+      const userpasswordRule = /(?=.*([a-zA-Z].*))(?=.*[0-9].*)[a-zA-Z0-9-*/+.~!@#$%^&*()]{7,17}$/
       if (!this.userInfo.username || !this.userInfo.password) {
         //1.用户名和密码都不能为空
         Toast({

@@ -10,7 +10,7 @@
         <text-input
           style="margin-top:5vw"
           type="text"
-          placeholder="请输入您的用户名,8-20位数字或字母"
+          placeholder="请输入您的用户名,8-20位数字或字母组合"
           class="register-text-input"
           rule="[a-zA-Z0-9_]{7,19}$"
           lengthLimit="20"
@@ -19,7 +19,7 @@
         />
         <text-input
           type="password"
-          placeholder="请输入您的密码，8-18位且字母开头"
+          placeholder="请输入您的密码，8-18位且至少包含字母和数字"
           class="register-text-input"
           rule="^[a-zA-Z]\w{7,17}$"
           lengthLimit="18"
@@ -120,7 +120,8 @@ export default {
     register() {
       //对用户名和密码进行校验，是否符合规范
       const usernameRule = /[a-zA-Z0-9_]{7,19}$/
-      const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
+      //密码至少包含数字和字母的组合，8-18位
+      const userpasswordRule = /(?=.*([a-zA-Z].*))(?=.*[0-9].*)[a-zA-Z0-9-*/+.~!@#$%^&*()]{7,17}$/
 
       if (!this.userInfo.username || !this.userInfo.password || !this.passwordAgain) {
         //1.用户名和密码都不能为空
@@ -146,6 +147,7 @@ export default {
         })
         //3.输入的用户名和密码是否符合规范
       } else {
+        console.log(this.userInfo)
         //4.全部符合，发送注册请求
         userRequest
           .post('/user/register', this.userInfo)
@@ -231,7 +233,7 @@ export default {
     },
     //提交邮箱注册信息
     email_register() {
-      const userpasswordRule = /^[a-zA-Z]\w{7,17}$/
+      const userpasswordRule = /(?=.*([a-zA-Z].*))(?=.*[0-9].*)[a-zA-Z0-9-*/+.~!@#$%^&*()]{7,17}$/
       if (!this.verifyCode) {
         Toast({
           type: 'fail',

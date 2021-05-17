@@ -1,7 +1,7 @@
 const UserTask = () => import('views/usertask/UserTask')
 const ReleaseTask = () => import('views/task/ReleaseTask')
 const TaskDetails = () => import('views/task/TaskDetails')
-const ReceiveTaskStatus = () => import('views/task/ReceiveTaskStatus')
+const TaskProcess = () => import('views/task/TaskProcess')
 const Category = () => import('views/task/Category')
 const Comment = () => import('views/task/Comment')
 const Complaint = () => import('views/task/Complaint')
@@ -40,16 +40,16 @@ export default [
     },
     {
         //任务投诉页
-        path:'/task/complaint/:tid',
-        component:Complaint,
-        meta:{
-            needLogin:true
+        path: '/task/complaint/:tid',
+        component: Complaint,
+        meta: {
+            needLogin: true
         }
     },
     {
         //任务代跑状态页
-        path: '/task/receiveTask/:tid',
-        component: ReceiveTaskStatus,
+        path: '/task/taskProcess/:tid',
+        component: TaskProcess,
         meta: {
             needLogin: true
         }

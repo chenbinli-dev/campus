@@ -20,7 +20,9 @@
         </van-col>
         <van-col span="12" class="message_body">
           <van-row class="name">{{item.user.nickname?item.user.nickname:item.user.username}}</van-row>
-          <van-row class="message">{{item.last_message.message_body}}</van-row>
+          <van-row>
+            <p class="message">{{item.last_message.message_body}}</p>
+          </van-row>
         </van-col>
         <van-col span="6" class="message_time">
           <van-row type="flex" justify="center" class="send_at">{{item.last_message.send_at}}</van-row>
@@ -168,6 +170,8 @@ export default {
   font-size: 3.5vw;
   color: #909399;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .message_time {
   padding: 0 2vw;

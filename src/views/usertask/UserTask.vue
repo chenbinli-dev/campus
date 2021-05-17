@@ -102,7 +102,7 @@
             v-for="(item,index) in ReceiveTaskList"
             :key="index"
             class="taskItem"
-            @click="$router.push({path:'/task/receiveTask/'+item.tid})"
+            @click="$router.push({path:'/task/taskProcess/'+item.tid})"
           >
             <div class="itemHeader">
               <span class="serial_number">{{index+1}}</span>

@@ -131,7 +131,7 @@ export default {
         .then(res => {
           if (res.data) {
             this.taskInfo = res.data
-            this.getTaskCommentStatus(res.data.task_number)
+            this.getTaskComment(res.data.task_number)
           }
         })
         .catch(err => {
@@ -153,10 +153,10 @@ export default {
           console.log(err)
         })
     },
-    //获取评价状态
-    getTaskCommentStatus(task_number) {
+    //获取评价信息
+    getTaskComment(task_number) {
       userRequest
-        .get('/task/getTaskCommentStatus', {
+        .get('/task/getTaskComment', {
           params: { task_number: task_number, releaser_id: localStorage.getItem('ID') }
         })
         .then(res => {
@@ -164,7 +164,9 @@ export default {
             this.comment_have = true
             this.comment_have_rate = res.data.rate
             this.comment_have_content = res.data.content
-            this.comment_have_createAt = this.$moment(res.data.createAt).format('YYYY-MM-DD HH:mm:ss')
+            this.comment_have_createAt = this.$moment(res.data.createAt).format(
+              'YYYY-MM-DD HH:mm:ss'
+            )
           }
         })
         .catch(err => {

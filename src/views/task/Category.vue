@@ -1,5 +1,5 @@
 <template>
-  <div id="category">
+  <div id="category" class="category">
     <nav-bar title="任务大厅" class="navbar">
       <template #left>
         <icon name="arrow-left" size="6vw" @click="$router.back(-1)" />
@@ -19,7 +19,7 @@
       error-text="请求失败，点击重新加载"
       :finished="taskListFinished"
       finished-text="没有更多了"
-      offset="400"
+      offset="300"
       class="taskList"
       @load="getTaskList"
     >
@@ -116,8 +116,8 @@ export default {
           params: { type: this.type, sortord: this.sortord, uid: localStorage.getItem('ID') }
         })
         .then(res => {
-          console.log(res.data.reverse())
-          if (res.data.length === 0) {
+          console.log(res.data[1])
+          if (res.data[0].length === 0) {
             //没有对应的任务
             Toast({
               type: 'fail',
@@ -129,12 +129,11 @@ export default {
               }
             })
           } else {
-            res.data.reverse().forEach(item => {
+            res.data[0].reverse().forEach(item => {
               this.task.push(item)
-              this.taskListLoading = true
             })
-
-            if (this.task.length === res.data.length) {
+            this.taskListLoading = false
+            if (this.task.length === res.data[1][0].num) {
               this.taskListFinished = true
             }
           }
@@ -158,7 +157,11 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.category {
+  height: 100%;
+  padding-top: 12vw;
+}
 .navbar {
   position: fixed;
   left: 0;
@@ -167,10 +170,11 @@ export default {
 }
 .dropdown {
   width: 100%;
-  margin-top: 12vw;
 }
 .taskList {
-  margin-top: 2vw;
+  padding-top: 2vw;
+  height: 100%;
+  overflow: scroll;
 }
 .taskItem {
   height: 30vw;

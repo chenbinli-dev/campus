@@ -177,20 +177,19 @@
             @click="$router.push({
               path:'/task/comment/'+taskInfo.tid
             })"
-          >已完成,去评价</span>
+          >
+            <p v-if="!haveComment">已完成,去评价</p>
+            <p v-else>查看评价</p>
+          </span>
           <span v-if="uid == this.taskInfo.owner_id && taskInfo.status === 4">已过期</span>
           <span
-            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5 && haveComplaint === false"
+            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5"
             class="complaint"
             @click="$router.push('/task/complaint/'+taskInfo.tid)"
           >
-            <icon name="flag-o" size="8vw" />投诉
-          </span>
-             <span
-            v-if="uid == this.taskInfo.owner_id && taskInfo.status === 5 && haveComplaint === true"
-            class="complaint"
-          >
-            <icon name="flag-o" size="8vw" />已投诉
+            <icon name="flag-o" size="8vw" />
+            <p v-if="!haveComplaint">投诉</p>
+            <p v-else>已投诉</p>
           </span>
         </div>
       </div>
@@ -227,7 +226,8 @@ export default {
       process: {},
       activeName: [],
       active: null,
-      haveComplaint:false
+      haveComment: false,
+      haveComplaint: false
     }
   },
   computed: {
@@ -267,16 +267,6 @@ export default {
     Steps
   },
   methods: {
-    // //处理时间
-    // utc2beijing(utc_datetime) {
-    //   // 转为正常的时间格式 年-月-日 时:分:秒
-    //   let T_pos = utc_datetime.indexOf('T')
-    //   let Z_pos = utc_datetime.indexOf('.')
-    //   let year_month_day = utc_datetime.substr(0, T_pos)
-    //   let hour_minute_second = utc_datetime.substr(T_pos + 1, Z_pos - T_pos - 1)
-    //   let new_datetime = year_month_day + ' ' + hour_minute_second // 2017-03-31 08:02:06
-    //   return new_datetime
-    // },
     //获取任务详情
     getTaskDetails() {
       userRequest
@@ -289,7 +279,7 @@ export default {
           if (localStorage.getItem('ID') != this.taskInfo.owner_id) {
             this.getReleaseUser(this.taskInfo.owner_id)
           } else {
-            //发布用户，如果是接取，完成，超时状态，则获取接取用户的信息
+            //发布用户，如果是已被接取状态，获取接取用户的信息和任务进程信息
             if (
               this.taskInfo.status === 2 ||
               this.taskInfo.status === 3 ||
@@ -297,17 +287,16 @@ export default {
             ) {
               this.getReceiveUser(this.taskInfo.tid)
               this.getTaskProcess(this.taskInfo.tid)
-              this.getComplaintStatus(this.taskInfo.task_number)
+              if (this.taskInfo.status === 3) {
+                //任务已完成，获取任务评价状态
+                this.getCommentStatus(this.taskInfo.task_number)
+              }
+              if (this.taskInfo.status === 5) {
+                //任务已超时，获取任务投诉状态
+                this.getComplaintStatus(this.taskInfo.task_number)
+              }
             }
           }
-          // //改变任务进度显示
-          // if (this.taskInfo.status === 1) {
-          //   this.active = 0
-          // } else if (this.taskInfo.status === 2) {
-          //   this.active = 1
-          // } else if (this.taskInfo.status === 3) {
-          //   this.active = 2
-          // }
         })
         .catch(err => {
           console.log(err)
@@ -382,6 +371,20 @@ export default {
           console.log(err)
         })
     },
+    getCommentStatus(task_number) {
+      userRequest
+        .get('/task/getCommentStatus', {
+          params: { task_number: task_number, uid: localStorage.getItem('ID') }
+        })
+        .then(res => {
+          if (res.data.num !== 0) {
+            this.haveComment = true
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     //获取投诉状态
     getComplaintStatus(task_number) {
       userRequest
@@ -389,7 +392,7 @@ export default {
           params: { task_number: task_number, uid: localStorage.getItem('ID') }
         })
         .then(res => {
-          if(res.data.num !== 0) {
+          if (res.data.num !== 0) {
             this.haveComplaint = true
           }
         })
@@ -445,7 +448,7 @@ export default {
               type: 'success',
               message: '接取任务成功',
               onClose: () => {
-                this.$router.push('/task/receiveTask/' + this.taskInfo.tid)
+                this.$router.push('/task/taskProcess/' + this.taskInfo.tid)
               }
             })
           } else {

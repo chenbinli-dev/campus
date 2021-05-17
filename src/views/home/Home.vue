@@ -2,6 +2,18 @@
   <div id="home">
     <nav-bar title="主页" />
     <notice-bar text="校园代跑平台现已正式上线" mode="closeable" left-icon="volume-o" />
+    <van-row
+      type="flex"
+      justify="center"
+      align="center"
+      style="margin-top:2vw"
+      v-if="this.$store.state.user_right === 2"
+    >
+      <p style="font-size:5vw">所在学校：</p>
+      <icon name="location-o" size="5vw" />
+      <p style="font-size:5vw">{{university_name}}</p>
+    </van-row>
+    <divider :style="{borderColor:'#ffffff'}" />
     <div id="entrance" class="entrance">
       <van-button
         round
@@ -80,17 +92,32 @@
 
 <script>
 const Tabbar = () => import('components/common/tabbar/Tabbar')
-import { NavBar, Button as VanButton, NoticeBar, Popup, Toast, Dialog } from 'vant'
+import {
+  NavBar,
+  Icon,
+  Row as VanRow,
+  Divider,
+  Button as VanButton,
+  NoticeBar,
+  Popup,
+  Toast,
+  Dialog
+} from 'vant'
+import userRequest from 'network/http'
 export default {
   name: 'Home',
   data() {
     return {
-      typeSelectShow: false
+      typeSelectShow: false,
+      university_name: ''
     }
   },
   components: {
     Tabbar,
+    Icon,
     NavBar,
+    VanRow,
+    Divider,
     VanButton,
     NoticeBar,
     Popup,
@@ -149,6 +176,22 @@ export default {
         // on close
         this.$router.push('/category')
       })
+    },
+    //获取用户学校
+    getUserUniversity() {
+      userRequest
+        .get('/user/getUserUniversity/' + localStorage.getItem('ID'))
+        .then(res => {
+          this.university_name = res.data.university_name
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  },
+  created() {
+    if (this.$store.state.user_right === 2) {
+      this.getUserUniversity()
     }
   }
 }

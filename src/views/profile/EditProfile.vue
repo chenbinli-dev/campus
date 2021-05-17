@@ -38,31 +38,31 @@
       </cell>
     </uploader>
     <cell-group>
-      <cell :value="userInfo.username">
+      <cell :value="userInfo.username" size="large">
         <template #title>
           <span>账号</span>
         </template>
       </cell>
 
-      <cell :value="userInfo.nickname" is-link @click="nicknameShow = true">
+      <cell :value="userInfo.nickname" is-link @click="nicknameShow = true" size="large">
         <template #title>
           <span>昵称</span>
         </template>
       </cell>
 
-      <cell :value="handleGender" is-link @click="genderShow = true">
+      <cell :value="handleGender" is-link @click="genderShow = true" size="large">
         <template #title>
           <span>性别</span>
         </template>
       </cell>
 
-      <cell :value="userInfo.telephone" is-link @click="telephoneShow = true">
+      <cell :value="userInfo.telephone" is-link @click="telephoneShow = true" size="large">
         <template #title>
           <span>联系电话</span>
         </template>
       </cell>
 
-      <cell :value="userInfo.brithday" is-link @click="showTimeSelect = true">
+      <cell :value="userInfo.brithday" is-link @click="showTimeSelect = true" size="large">
         <template #title>
           <span>生日</span>
         </template>
