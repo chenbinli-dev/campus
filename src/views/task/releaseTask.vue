@@ -30,7 +30,7 @@
         clearable
         style="font-size: 4vw"
       />
-      <!--上传取件码图片文件-->
+      <!--上传身份码码图片文件-->
       <field
         required
         name="uploader"
@@ -43,6 +43,8 @@
             accept=".jpg, .png"
             :before-read="beforeRead"
             :after-read="afterRead"
+            preview-full-image
+            :max-count="1"
             v-model="codeImageList"
           />
         </template>
@@ -169,7 +171,7 @@
       <field
         v-model="address"
         label="收件地址"
-        placeholder="越详细越好哦"
+        placeholder="例如：xx大学xx校区xx栋xx单元xx号"
         :rules="[{ required: true, message: '请填写地址' }]"
         required
         clearable
@@ -397,6 +399,7 @@ export default {
     },
     //提交表单，发布任务
     onSubmit() {
+      console.log(this.estimated_amount)
       //判断用户是否上传了图片或文件
       if (this.taskType === '代取快递' && this.codeImageList.length === 0) {
         Toast({
@@ -408,6 +411,12 @@ export default {
         Toast({
           type: 'fail',
           message: '还未选择打印文件'
+        })
+        return
+      } else if (this.taskType === '代购物' && this.shoppingFileList.length === 0) {
+        Toast({
+          type: 'fail',
+          message: '缺少商品图片'
         })
         return
       }
@@ -455,7 +464,7 @@ export default {
           } else {
             //密码正确，发布任务
             Toast.loading({
-              duration: 1000,
+              duration: 2000,
               message: '发布任务中',
               forbidClick: true,
               loadingType: 'spinner',
@@ -537,7 +546,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .navbar {
   position: fixed;
   top: 0;
@@ -546,11 +555,11 @@ export default {
 }
 .releaseTask {
   height: 100%;
-  overflow: scroll;
 }
 .releaseTaskForm {
-  margin-top: 15vw;
+  padding-top: 14vw;
   font-size: 5vw;
+  overflow-y: scroll;
 }
 .confirmList {
   padding: 10vw;

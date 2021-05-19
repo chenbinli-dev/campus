@@ -1,6 +1,6 @@
 <template>
-  <div id="address">
-    <nav-bar title="地址列表">
+  <div id="address" class="address">
+    <nav-bar title="地址列表" class="navbar">
       <template #left>
         <icon name="arrow-left" size="6vw" @click="$router.back()" />
       </template>
@@ -191,7 +191,13 @@ export default {
       user_address_list: [],
       address_info_add: false,
       address_info_update: false,
-      update_address: {},
+      update_address: {
+        realname: '',
+        telephone: '',
+        university_name: '',
+        address_details: '',
+        isDefault: false
+      },
       realname: '',
       telephone: '',
       university_name: '',
@@ -299,10 +305,18 @@ export default {
     //编辑地址
     update(index) {
       this.address_info_update = true
-      this.user_address_list[index].isDefault === 1
-        ? (this.user_address_list[index].isDefault = true)
-        : (this.user_address_list[index].isDefault = false)
-      this.update_address = this.user_address_list[index]
+      console.log(this.user_address_list[index])
+      this.update_address.id = this.user_address_list[index].id
+      this.update_address.realname = this.user_address_list[index].realname
+      this.update_address.telephone = this.user_address_list[index].telephone
+      this.update_address.university_name = this.user_address_list[index].university_name
+      this.update_address.address_details = this.user_address_list[index].address_details
+
+      if (this.user_address_list[index].isDefault === 1) {
+        this.update_address.isDefault = true
+      } else {
+        this.update_address.isDefault = false
+      }
     },
     //提交修改
     updateAddress() {
@@ -326,6 +340,7 @@ export default {
         })
         return
       }
+      this.update_address.user_id = localStorage.getItem('ID')
       userRequest
         .post('/user/updateAddress', this.update_address, {
           headers: { Authorization: localStorage.getItem('TOKEN') }
@@ -340,8 +355,8 @@ export default {
                 this.reload()
               }
             })
-          }else {
-                 Toast({
+          } else {
+            Toast({
               type: 'fail',
               message: '更新失败',
               onClose: () => {
@@ -363,6 +378,20 @@ export default {
 </script>
 
 <style>
+.address {
+  height: 100%;
+  padding-top: 12vw;
+}
+.navbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+.addresList {
+  height: 100%;
+  overflow-y: scroll;
+}
 .address_empty {
   margin: 2vw 0;
   text-align: center;

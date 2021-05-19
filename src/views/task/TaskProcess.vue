@@ -46,7 +46,17 @@
         <div class="FileBox_title">取件码</div>
         <ul class="file_list_image">
           <li v-for="item in taskInfo.upload_file_url" :key="item.tid">
-            <van-image width="50%" height="50%" lazy-load:true show-loading :src="item" />
+            <van-row type="flex" justify="center">
+              <van-image
+                width="50%"
+                height="50%"
+                fit="scale-down"
+                lazy-load:true
+                show-loading
+                :src="item"
+                @click="showImagePreview(item)"
+              />
+            </van-row>
           </li>
         </ul>
       </div>
@@ -67,7 +77,14 @@
         <div class="FileBox_title">商品图片</div>
         <ul class="file_list_image">
           <li v-for="item in taskInfo.upload_file_url" :key="item.tid">
-            <van-image width="50%" height="50%" lazy-load:true show-loading :src="item" />
+            <van-image
+              width="50%"
+              height="50%"
+              lazy-load:true
+              show-loading
+              :src="item"
+              @click="showImagePreview(item)"
+            />
           </li>
         </ul>
       </div>
@@ -194,7 +211,7 @@
         />
         <cell title="评价时间" size="large">{{comment_have_createAt}}</cell>
       </cell-group>
-      <cell-group v-else>
+      <cell-group v-else-if="taskInfo.status === 3">
         <van-row type="flex" justify="center" style="font-size:4vw">等待发布用户评价</van-row>
       </cell-group>
     </div>
@@ -209,6 +226,7 @@ import {
   Cell,
   CellGroup,
   Image as VanImage,
+  ImagePreview,
   Step,
   Steps,
   Button as VanButton,
@@ -239,6 +257,7 @@ export default {
     Cell,
     CellGroup,
     VanImage,
+    [ImagePreview.Component.name]: ImagePreview.Component,
     Step,
     Steps,
     VanButton,
@@ -382,6 +401,10 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    //展示预览图
+    showImagePreview(url) {
+      ImagePreview([url])
     }
   },
   created() {

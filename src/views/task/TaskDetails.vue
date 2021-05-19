@@ -57,20 +57,24 @@
         <!--取件码-->
         <collapse v-if="taskInfo.type === '代取快递'" v-model="activeName">
           <collapse-item
-            title="取件码"
+            title="身份码"
             name="1"
             size="large"
             :disabled="uid != this.taskInfo.owner_id"
             @click="getFiles"
           >
-            <van-image
-              width="10rem"
-              height="10rem"
-              fit="contain"
-              v-for="(val,index) in taskInfo.upload_file_url"
-              :key="index"
-              :src="val"
-            />
+            <van-row type="flex" justify="center">
+              <van-image
+                width="50%"
+                height="50%"
+                fit="scale-down"
+                alt="身份码"
+                v-for="(val,index) in taskInfo.upload_file_url"
+                :key="index"
+                :src="val"
+                @click="showImagePreview(val)"
+              />
+            </van-row>
           </collapse-item>
         </collapse>
         <!--打印文件-->
@@ -92,6 +96,25 @@
             </ul>
           </collapse-item>
         </collapse>
+        <!--商品图片-->
+        <collapse v-if="taskInfo.type === '代购物'" v-model="activeName">
+          <collapse-item title="商品图片" name="1" size="large" @click="getFiles">
+            <van-row type="flex" justify="space-between">
+              <van-image
+                width="50%"
+                height="50%"
+                fit="scale-down"
+                alt="商品"
+                v-for="(val,index) in taskInfo.upload_file_url"
+                :key="index"
+                :src="val"
+                @click="showImagePreview(val)"
+              />
+            </van-row>
+          </collapse-item>
+        </collapse>
+        <cell title="预估金" :value="taskInfo.estimated_amount" size="large" />
+        <cell title="任务金" :value="taskInfo.commission" size="large" />
       </cell-group>
 
       <!--任务进度条，只有被接取任务才有-->
@@ -203,10 +226,12 @@ import {
   Icon,
   Cell,
   CellGroup,
+  Row as VanRow,
   Tag,
   Collapse,
   CollapseItem,
   Image as VanImage,
+  ImagePreview,
   Button as VanButton,
   Toast,
   CountDown,
@@ -257,11 +282,13 @@ export default {
     Icon,
     Cell,
     CellGroup,
+    VanRow,
     Tag,
     Collapse,
     CollapseItem,
     VanButton,
     VanImage,
+    [ImagePreview.Component.name]: ImagePreview.Component,
     CountDown,
     Step,
     Steps
@@ -462,6 +489,10 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    //展示图片预览图
+    showImagePreview(url) {
+      ImagePreview([url])
     }
   },
   created() {

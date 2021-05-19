@@ -221,18 +221,17 @@ export default {
 </script>
 
 <style scoped>
-.navbar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-}
 .chat {
   height: 100%;
   padding: 12vw 0;
 }
+.navbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+}
 .message_list {
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   height: 100%;

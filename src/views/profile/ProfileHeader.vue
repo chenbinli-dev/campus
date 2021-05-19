@@ -28,7 +28,7 @@
           userInfo.nickname
           }}
         </span>
-        <span v-else>我还没有昵称呢</span>
+        <span v-else>{{userInfo.username}}</span>
         <img src="~assets/img/verify.svg" v-if="userInfo.right === 2" />
         <img src="~assets/img/not_verify.svg" v-else />
       </div>

@@ -41,7 +41,7 @@
               format="距过期：DD 天 HH 时 mm 分"
             />
             <span class="money">
-              <div v-if="type === 1" class="estimated_amount">
+              <div v-if="type === 1 || type === 2" class="estimated_amount">
                 <icon color="#ffd300" size="5.5vw" name="gold-coin-o" />
                 {{item.estimated_amount}}
               </div>

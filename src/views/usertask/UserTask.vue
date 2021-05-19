@@ -38,40 +38,57 @@
             class="taskItem"
             @click="$router.push({path:'/task/'+item.tid})"
           >
-            <div class="itemHeader">
-              <span class="serial_number">{{index+1}}</span>
-              <span class="task_title">{{item.title}}</span>
-              <tag v-if="item.status === 1" color="#7232dd">闲置</tag>
-              <tag v-else-if="item.status === 2" type="primary">接取</tag>
-              <tag v-else-if="item.status === 3" type="success">完成</tag>
-              <tag v-else-if="item.status === 4" type="warning">过期</tag>
-              <tag v-else type="danger">超时</tag>
-            </div>
-            <div class="itemBody">
-              <span class="countDown">
-                <count-down
-                  :time="new Date(item.expiration_time) - new Date()"
-                  v-if="item.status !== 3"
-                >
-                  <template #default="timeData">
-                    <span class="block">{{ timeData.days }}</span>
-                    <span class="colon">天</span>
-                    <span class="block">{{ timeData.hours }}</span>
-                    <span class="colon">小时</span>
-                    <span class="block">{{ timeData.minutes }}</span>
-                    <span class="colon">分</span>
-                  </template>
-                </count-down>
-                <div class="tips" v-else>任务已完成，快去评价吧>>></div>
-              </span>
-
-              <div class="task_type_label">
+            <van-row type="flex" justify="space-between" align="center" class="itemHeader">
+              <van-col span="4" class="serial_number">{{index+1}}</van-col>
+              <van-col span="12">
+                <p class="task_title">{{item.title}}</p>
+              </van-col>
+              <van-col span="4">
                 <tag v-if="item.type === '代取快递'" color="#7232dd" plain>代取快递</tag>
                 <tag v-else-if="item.type === '代打印'" color="#7232dd" plain>代打印</tag>
                 <tag v-else-if="item.type === '代购物'" color="#7232dd" plain>代购物</tag>
                 <tag v-else color="#7232dd" plain>其他</tag>
-              </div>
-            </div>
+              </van-col>
+              <van-col span="4">
+                <tag v-if="item.status === 1" color="#7232dd">闲置中</tag>
+                <tag v-else-if="item.status === 2" type="primary">进行中</tag>
+                <tag v-else-if="item.status === 3" type="success">已完成</tag>
+                <tag v-else-if="item.status === 4" type="warning">已过期</tag>
+                <tag v-else type="danger">已超时</tag>
+              </van-col>
+            </van-row>
+            <van-row class="itemBody">
+              <van-row class="countDown">
+                <van-col span="12">
+                  <count-down
+                    :time="new Date(item.expiration_time) - new Date()"
+                    v-if="item.status !== 3"
+                  >
+                    <template #default="timeData">
+                      <span class="block">{{ timeData.days }}</span>
+                      <span class="colon">天</span>
+                      <span class="block">{{ timeData.hours }}</span>
+                      <span class="colon">小时</span>
+                      <span class="block">{{ timeData.minutes }}</span>
+                      <span class="colon">分</span>
+                    </template>
+                  </count-down>
+                  <div class="tips" v-else>任务已完成，快去评价吧>>></div>
+                </van-col>
+                <van-col span="6" v-if="type === 1 || type === 2">
+                  <van-row type="flex" justify="space-between" align="center">
+                    <icon color="#ffd300" size="5.5vw" name="gold-coin-o" />
+                    <p style="font-size:4vw">{{item.estimated_amount}}元</p>
+                  </van-row>
+                </van-col>
+                <van-col span="6" :offset="type !==1 && type !==2 ?6:0">
+                  <van-row type="flex" align="center">
+                    <icon color="#ffd300" size="5.5vw" name="balance-o" />
+                    <p style="font-size:4vw">{{item.commission}}元</p>
+                  </van-row>
+                </van-col>
+              </van-row>
+            </van-row>
           </div>
         </list>
       </tab>
@@ -104,39 +121,55 @@
             class="taskItem"
             @click="$router.push({path:'/task/taskProcess/'+item.tid})"
           >
-            <div class="itemHeader">
-              <span class="serial_number">{{index+1}}</span>
-              <span class="task_title">{{item.title}}</span>
-              <tag v-if="item.status === 2" type="primary">进行中</tag>
-              <tag v-else-if="item.status === 3" type="success">已完成</tag>
-              <tag v-else type="danger">已过期</tag>
-            </div>
-            <div class="itemBody">
-              <span class="countDown">
-                <count-down
-                  :time="new Date(item.expiration_time) - new Date()"
-                  v-if="item.status !== 3"
-                >
-                  <template #default="timeData">
-                    <span class="block">{{ timeData.days }}</span>
-                    <span class="colon">天</span>
-                    <span class="block">{{ timeData.hours }}</span>
-                    <span class="colon">小时</span>
-                    <span class="block">{{ timeData.minutes }}</span>
-                    <span class="colon">分</span>
-                  </template>
-                </count-down>
-
-                <div class="tips" v-else>任务完成，很棒哦</div>
-              </span>
-
-              <div class="task_type_label">
+            <van-row type="flex" justify="space-between" align="center" class="itemHeader">
+              <van-col span="4" class="serial_number">{{index+1}}</van-col>
+              <van-col span="12">
+                <p class="task_title">{{item.title}}</p>
+              </van-col>
+              <van-col span="4">
                 <tag v-if="item.type === '代取快递'" color="#7232dd" plain>代取快递</tag>
                 <tag v-else-if="item.type === '代打印'" color="#7232dd" plain>代打印</tag>
                 <tag v-else-if="item.type === '代购物'" color="#7232dd" plain>代购物</tag>
                 <tag v-else color="#7232dd" plain>其他</tag>
-              </div>
-            </div>
+              </van-col>
+              <van-col span="4">
+                <tag v-if="item.status === 2" type="primary">进行中</tag>
+                <tag v-else-if="item.status === 3" type="success">已完成</tag>
+                <tag v-else type="danger">已过期</tag>
+              </van-col>
+            </van-row>
+            <van-row class="itemBody">
+              <van-row class="countDown">
+                <van-col span="12">
+                  <count-down
+                    :time="new Date(item.expiration_time) - new Date()"
+                    v-if="item.status !== 3"
+                  >
+                    <template #default="timeData">
+                      <span class="block">{{ timeData.days }}</span>
+                      <span class="colon">天</span>
+                      <span class="block">{{ timeData.hours }}</span>
+                      <span class="colon">小时</span>
+                      <span class="block">{{ timeData.minutes }}</span>
+                      <span class="colon">分</span>
+                    </template>
+                  </count-down>
+                  <div class="tips" v-else>任务完成，很棒哦</div>
+                </van-col>
+                <van-col span="6" v-if="type === 1 || type === 2">
+                  <van-row type="flex" justify="space-between" align="center">
+                    <icon color="#ffd300" size="5.5vw" name="gold-coin-o" />
+                    <p style="font-size:4vw">{{item.estimated_amount}}元</p>
+                  </van-row>
+                </van-col>
+                <van-col span="6" :offset="type !==1 && type !==2 ?6:0">
+                  <van-row type="flex" align="center">
+                    <icon color="#ffd300" size="5.5vw" name="balance-o" />
+                    <p style="font-size:4vw">{{item.commission}}元</p>
+                  </van-row>
+                </van-col>
+              </van-row>
+            </van-row>
           </div>
         </list>
       </tab>
@@ -147,7 +180,19 @@
 
 <script>
 const Tabbar = () => import('components/common/tabbar/Tabbar')
-import { Tab, Tabs, DropdownMenu, DropdownItem, List, Tag, CountDown, Toast } from 'vant'
+import {
+  Icon,
+  Row as VanRow,
+  Col as VanCol,
+  Tab,
+  Tabs,
+  DropdownMenu,
+  DropdownItem,
+  List,
+  Tag,
+  CountDown,
+  Toast
+} from 'vant'
 import userRequest from 'network/http'
 export default {
   name: 'UserTask',
@@ -184,6 +229,9 @@ export default {
     }
   },
   components: {
+    Icon,
+    VanRow,
+    VanCol,
     Tabbar,
     Tab,
     Tabs,
@@ -302,7 +350,7 @@ export default {
   border-radius: 3vw;
 }
 .itemHeader {
-  margin-bottom: 5vw;
+  margin-bottom: 2vw;
 }
 .serial_number {
   display: inline-block;
@@ -316,17 +364,13 @@ export default {
   margin-right: 5vw;
 }
 .task_title {
-  height: 100%;
-  text-align: center;
   font-size: 4.5vw;
+  text-overflow: ellipsis;
   overflow: hidden;
-}
-.itemHeader :nth-child(3) {
-  float: right;
-  font-size: 4vw;
 }
 .itemBody {
   margin-left: 13vw;
+  margin-top: 10vw;
 }
 .countDown {
   vertical-align: middle;
@@ -346,7 +390,7 @@ export default {
   color: #fff;
   font-size: 1.6vw;
   text-align: center;
-  border-radius: 50%;
+  border-radius: 10%;
   background-color: #ee0a24;
 }
 .task_type_label {
