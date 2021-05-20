@@ -7,8 +7,7 @@
       </template>
     </nav-bar>
     <div class="task_process_body">
-      <div class="task_number">代跑编号：{{process.id}}</div>
-      <!--任务完成或超时通知-->
+      <!--任务完成通知-->
       <div class="task_message" v-if="process.releaser_confirm === 1">
         <div class="task_message_title">
           <img src="~assets/img/finished.svg" width="30vw" height="30vw" />任务已经完成
@@ -22,6 +21,9 @@
           v-else
         >预估金￥{{taskInfo.estimated_amount}}，任务金￥{{taskInfo.commission}}已发放至您的账户</div>
       </div>
+      <!--任务超时通知-->
+      <notice-bar v-if="taskInfo.status === 5" color="red" left-icon="info-o">任务已超时！信誉分扣除10分。</notice-bar>
+      <div class="task_number">代跑编号：{{process.id}}</div>
       <!--发布用户信息和聊天按钮-->
       <div class="releaser">
         <div class="releaser_avatar">
@@ -102,6 +104,7 @@
               v-if="process.obtain_delivery === 0"
               color="#ffd300"
               @click="changeProcess('obtain_delivery')"
+              :disabled="taskInfo.status === 5"
             >已取快递</van-button>
             <div v-else>
               <p>已取快递</p>
@@ -114,6 +117,7 @@
               v-if="process.printed === 0"
               color="#ffd300"
               @click="changeProcess('printed')"
+              :disabled="taskInfo.status === 5"
             >已打印</van-button>
             <div v-else>
               <p>已打印</p>
@@ -126,7 +130,8 @@
               v-if="process.bought === 0"
               color="#ffd300"
               @click="changeProcess('bought')"
-            >已打印</van-button>
+              :disabled="taskInfo.status === 5"
+            >已购买</van-button>
             <div v-else>
               <p>已购商品</p>
               <p v-if="process.bought_at">{{process.bought_at}}</p>
@@ -138,6 +143,7 @@
               v-if="process.is_sending === 0 && (process.obtain_delivery === 1 || process.printed === 1 || process.bought === 1)"
               color="#ffd300"
               @click="changeProcess('is_sending')"
+              :disabled="taskInfo.status === 5"
             >正在配送</van-button>
             <div v-else>
               <p>正在配送</p>
@@ -150,6 +156,7 @@
               v-if="process.arrived === 0 && process.is_sending === 1"
               color="#ffd300"
               @click="changeProcess('arrived')"
+              :disabled="taskInfo.status === 5"
             >已经送达</van-button>
             <div v-else>
               <p>已经送达</p>
@@ -162,6 +169,7 @@
               v-if="process.receiver_confirm === 0 && process.arrived === 1"
               color="#ffd300"
               @click="changeProcess('receiver_confirm')"
+              :disabled="taskInfo.status === 5"
             >确认完成</van-button>
             <div v-else>
               <p>代跑者确认完成</p>
@@ -221,6 +229,7 @@
 <script>
 import {
   NavBar,
+  NoticeBar,
   Icon,
   Row as VanRow,
   Cell,
@@ -252,6 +261,7 @@ export default {
   inject: ['reload'],
   components: {
     NavBar,
+    NoticeBar,
     Icon,
     VanRow,
     Cell,

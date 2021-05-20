@@ -12,7 +12,7 @@
     />
     <text-input
       type="password"
-      placeholder="请输入您的密码，8-18位且字母开头"
+      placeholder="输入密码，8-18位且至少包含字母和数字"
       class="login-text-input"
       rule="^[a-zA-Z]\w{7,17}$"
       lengthLimit="18"

@@ -113,7 +113,12 @@
             </van-row>
           </collapse-item>
         </collapse>
-        <cell title="预估金" :value="taskInfo.estimated_amount" size="large" />
+        <cell
+          title="预估金"
+          v-if="taskInfo.type ==='代打印' || taskInfo.type ==='代购物'"
+          :value="taskInfo.estimated_amount"
+          size="large"
+        />
         <cell title="任务金" :value="taskInfo.commission" size="large" />
       </cell-group>
 

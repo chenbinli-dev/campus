@@ -109,7 +109,8 @@ export default {
   data() {
     return {
       typeSelectShow: false,
-      university_name: ''
+      university_name: '',
+      credit_points: null
     }
   },
   components: {
@@ -168,10 +169,16 @@ export default {
           message: '该账号已禁用'
         })
         return
+      } else if (this.credit_points < 80) {
+        Toast({
+          type: 'fail',
+          message: '当前信誉分不足80，无法接取任务'
+        })
+        return
       }
       Dialog.alert({
         title: '注意',
-        message: '接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'
+        message: '当前信誉分:'+ this.credit_points +'。接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'
       }).then(() => {
         // on close
         this.$router.push('/category')
@@ -187,12 +194,25 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    //获取用户信誉分
+    getUserCreditPoints() {
+      userRequest
+        .get('/user/getUserCreditPoints/' + localStorage.getItem('ID'))
+        .then(res => {
+          console.log(res.data)
+          this.credit_points = res.data.credit_points
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   },
   created() {
     if (this.$store.state.user_right === 2) {
       this.getUserUniversity()
     }
+    this.getUserCreditPoints()
   }
 }
 </script>
