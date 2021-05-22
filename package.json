@@ -10,6 +10,7 @@
   "dependencies": {
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "core-js": "^3.10.0",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",

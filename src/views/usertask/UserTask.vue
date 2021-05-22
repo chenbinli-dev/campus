@@ -47,7 +47,7 @@
                 <tag v-if="item.type === '代取快递'" color="#7232dd" plain>代取快递</tag>
                 <tag v-else-if="item.type === '代打印'" color="#7232dd" plain>代打印</tag>
                 <tag v-else-if="item.type === '代购物'" color="#7232dd" plain>代购物</tag>
-                <tag v-else color="#7232dd" plain>其他</tag>
+                <tag v-else color="#7232dd" plain>其他代跑</tag>
               </van-col>
               <van-col span="4">
                 <tag v-if="item.status === 1" color="#7232dd">闲置中</tag>
@@ -367,6 +367,7 @@ export default {
   font-size: 4.5vw;
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap;
 }
 .itemBody {
   margin-left: 13vw;
