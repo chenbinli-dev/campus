@@ -23,11 +23,11 @@
         <!--显示列表-->
         <list
           v-model="ReleaseTaskListLoading"
-          :error.sync="error"
+          :error.sync="release_error"
           error-text="请求失败，点击重新加载"
           :finished="ReleaseTaskListFinished"
           finished-text="没有更多了"
-          offset="40"
+          :offset="300"
           class="releaseTaskList"
           :immediate-check="false"
           @load="getTaskList"
@@ -107,11 +107,11 @@
         <!--列表-->
         <list
           v-model="ReceiveTaskListLoading"
-          :error.sync="error"
+          :error.sync="receive_error"
           error-text="请求失败，点击重新加载"
           :finished="ReceiveTaskListFinished"
           finished-text="没有更多了"
-          offset="40"
+          :offset="300"
           :immediate-check="false"
           @load="getTaskList"
         >
@@ -225,7 +225,8 @@ export default {
       ReleaseTaskListFinished: false,
       ReceiveTaskListLoading: false,
       ReceiveTaskListFinished: false,
-      error: false
+      release_error: false,
+      receive_error: false
     }
   },
   components: {
@@ -278,10 +279,8 @@ export default {
               duration: 500,
               onClose: () => {
                 if (this.active === 0) {
-                  this.ReleaseTaskListLoading = false
                   this.ReleaseTaskListFinished = true
                 } else {
-                  this.ReceiveTaskListLoading = false
                   this.ReceiveTaskListFinished = true
                 }
               }
@@ -290,8 +289,8 @@ export default {
           } else {
             if (this.active === 0) {
               res.data.forEach(item => {
-                this.ReleaseTaskList.push(item)
-                this.ReleaseTaskListLoading = true
+                this.ReleaseTaskList = this.ReleaseTaskList.concat(item)
+                this.ReleaseTaskListLoading = false
               })
               if (this.ReleaseTaskList.length === res.data.length) {
                 this.ReleaseTaskListFinished = true
@@ -299,8 +298,8 @@ export default {
               return
             } else {
               res.data.forEach(item => {
-                this.ReceiveTaskList.push(item)
-                this.ReceiveTaskListLoading = true
+                this.ReceiveTaskList = this.ReceiveTaskList.concat(item)
+                this.ReceiveTaskListLoading = false
               })
               if (this.ReceiveTaskList.length === res.data.length) {
                 this.ReceiveTaskListFinished = true
@@ -310,6 +309,11 @@ export default {
         })
         .catch(err => {
           console.log(err)
+          if(this.active === 0){
+            this.release_error = true
+          }else {
+            this.receive_error = true
+          }
         })
     },
     //监听用户点击下拉菜单

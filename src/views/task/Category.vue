@@ -124,14 +124,11 @@ export default {
               message: '没有对应的任务',
               duration: 500,
               onClose: () => {
-                this.taskListLoading = false
                 this.taskListFinished = true
               }
             })
           } else {
-            res.data[0].reverse().forEach(item => {
-              this.task.push(item)
-            })
+            this.task = this.task.concat(res.data[0].reverse())
             this.taskListLoading = false
             if (this.task.length === res.data[1][0].num) {
               this.taskListFinished = true
@@ -174,7 +171,6 @@ export default {
 .taskList {
   padding-top: 2vw;
   height: 100%;
-  overflow: scroll;
 }
 .taskItem {
   height: 30vw;

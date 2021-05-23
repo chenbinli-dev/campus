@@ -11,8 +11,9 @@
       :error.sync="error"
       error-text="请求失败，点击重新加载"
       finished-text="没有更多了"
-      offset="300"
-      @load="getUserRecord"
+      :offset="300"
+      :immediate-check="false"
+      @load="onLoad"
       class="record_list"
     >
       <cell v-for="item in record" :key="item.id">
@@ -45,7 +46,7 @@ export default {
       finished: false,
       error: false,
       record: [],
-      total: null,
+      total: 0,
       pageNo: 1
     }
   },
@@ -59,10 +60,15 @@ export default {
     VanRow
   },
   methods: {
+    onLoad() {
+      console.log('111111111111111111')
+      this.getUserRecord()
+    },
     getUserRecord() {
+      console.log(this.pageNo)
       userRequest
         .get('/balance/getUserRecord/' + localStorage.getItem('ID'), {
-          params: { pageNo: this.pageNo, pageSize: 9 },
+          params: { pageNo: this.pageNo, pageSize: 10 },
           headers: { Authorization: localStorage.getItem('TOKEN') }
         })
         .then(res => {
@@ -88,8 +94,21 @@ export default {
                 break
             }
             item.createAt = this.$moment(item.createAt).format('YYYY-MM-DD HH:mm:ss')
-            this.record.push(item)
           })
+          if (this.total <= 10 && this.total > 0) {
+            //获取的记录列表撑不满屏
+            this.record = this.record.concat(res.data)
+            this.loading = false
+            this.finished = true
+            return
+          } else if (this.total === 0) {
+            //获取的记录为0
+            this.finished = true
+            return
+          }
+          //停止加载
+          this.record = this.record.concat(res.data)
+          this.pageNo++
           this.loading = false
           if (this.record.length === this.total) {
             this.finished = true
@@ -99,17 +118,15 @@ export default {
           console.log(err)
           this.error = true
         })
-
-      this.pageNo++
     },
-    getUserRecordTotal() {
-      userRequest
+    async getUserRecordTotal() {
+      await userRequest
         .get('/balance/getUserRecordTotal/' + localStorage.getItem('ID'), {
           headers: { Authorization: localStorage.getItem('TOKEN') }
         })
         .then(res => {
-          console.log(res.data.num)
           this.total = res.data.num
+          console.log(this.total)
         })
         .catch(err => {
           console.log(err)
@@ -117,15 +134,15 @@ export default {
     }
   },
   created() {
-    this.getUserRecord()
     this.getUserRecordTotal()
+    this.onLoad()
   }
 }
 </script>
 
 <style scoped>
 .navbar {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   top: 0;
@@ -136,7 +153,6 @@ export default {
 }
 .record_list {
   height: 100%;
-  overflow: scroll;
 }
 .money {
   font-size: 4vw;
