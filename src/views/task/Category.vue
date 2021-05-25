@@ -53,7 +53,7 @@
           </div>
         </div>
         <template #right>
-          <van-button style="height:30vw" square color="#ffd300" text="收藏" />
+          <van-button style="height:100%" square color="#ffd300" text="收藏" />
         </template>
       </swipe-cell>
     </list>

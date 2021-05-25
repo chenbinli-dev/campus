@@ -174,7 +174,6 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data)
           this.userInfo.username = res.data.username
           //加上时间戳，实现图片的刷新
           this.userInfo.avatar_url = res.data.avatar_url + '?time=' + Date.now()

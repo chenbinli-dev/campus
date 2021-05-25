@@ -9,9 +9,13 @@
       <div class="address_empty" v-if="user_address_list.length === 0">
         <span>您还没有添加收件地址</span>
       </div>
-      <ul class="address_not_empty" v-else>
-        <li v-for="(item,index) in user_address_list" :key="item.id">
-          <van-row>
+      <div class="address_not_empty" v-else>
+        <swipe-cell
+          v-for="(item,index) in user_address_list"
+          :key="item.id"
+          :before-close="beforeClose"
+        >
+          <van-row class="address_item">
             <van-col span="20">
               <div class="user_info">
                 <span>{{item.realname}}</span>
@@ -23,13 +27,28 @@
               </van-row>
             </van-col>
             <van-col span="4">
-              <van-row class="item_right" @click="update(index)">
+              <van-row
+                type="flex"
+                justify="center"
+                align="center"
+                class="item_right"
+                @click="update(index)"
+              >
                 <icon name="edit" size="5vw" />
               </van-row>
             </van-col>
           </van-row>
-        </li>
-      </ul>
+          <template #right>
+            <van-button
+              style="height:100%"
+              square
+              type="danger"
+              text="删除"
+              @click="deleteAddress(item)"
+            />
+          </template>
+        </swipe-cell>
+      </div>
     </div>
     <!--新建弹出-->
     <popup
@@ -171,6 +190,7 @@
 import {
   NavBar,
   Icon,
+  SwipeCell,
   Row as VanRow,
   Col as VanCol,
   Button as VanButton,
@@ -180,7 +200,8 @@ import {
   Cell,
   Switch as VanSwitch,
   Tag,
-  Toast
+  Toast,
+  Dialog
 } from 'vant'
 import userRequest from 'network/http'
 export default {
@@ -208,6 +229,7 @@ export default {
   components: {
     NavBar,
     Icon,
+    SwipeCell,
     VanRow,
     VanCol,
     VanButton,
@@ -318,6 +340,62 @@ export default {
         this.update_address.isDefault = false
       }
     },
+    //关闭前处理
+    beforeClose({ position, instance }) {
+      switch (position) {
+        case 'outside':
+          instance.close()
+          break
+        case 'right':
+          instance.close()
+          break
+        default:
+          break
+      }
+    },
+    deleteAddress(item) {
+      const req = {
+        address_id: item.id,
+        uid: localStorage.getItem('ID')
+      }
+      Dialog.confirm({
+        title: '注意',
+        message: '确定删除该地址吗？'
+      })
+        .then(() => {
+          userRequest
+            .post('/user/deleteAddress', req, {
+              headers: { Authorization: localStorage.getItem('TOKEN') }
+            })
+            .then(res => {
+              if (res.data === 'DELETE_SUCCESS') {
+                //删除成功
+                Toast({
+                  type: 'success',
+                  message: '删除成功',
+                  duration: 300,
+                  onClose: () => {
+                    this.reload()
+                  }
+                })
+              } else {
+                Toast({
+                  type: 'fail',
+                  message: '删除失败',
+                  onClose: () => {
+                    this.reload()
+                  }
+                })
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        })
+        .catch(() => {
+          Dialog.close()
+        })
+    },
     //提交修改
     updateAddress() {
       const teltphoneRule = /^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/
@@ -377,7 +455,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .address {
   height: 100%;
   padding-top: 12vw;
@@ -401,7 +479,7 @@ export default {
   margin: 2vw 0;
   padding: 0 2vw;
 }
-.address_not_empty li {
+.address_item {
   padding: 3vw;
   margin-bottom: 2vw;
   background-color: #fff;
@@ -424,9 +502,7 @@ export default {
   text-overflow: ellipsis;
 }
 .item_right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
 }
 .addressForm {
   margin-top: 10vw;

@@ -61,18 +61,16 @@ export default {
   },
   methods: {
     onLoad() {
-      console.log('111111111111111111')
+      this.loading = true
       this.getUserRecord()
     },
-    getUserRecord() {
-      console.log(this.pageNo)
-      userRequest
+    async getUserRecord() {
+      await userRequest
         .get('/balance/getUserRecord/' + localStorage.getItem('ID'), {
           params: { pageNo: this.pageNo, pageSize: 10 },
           headers: { Authorization: localStorage.getItem('TOKEN') }
         })
         .then(res => {
-          console.log(res.data)
           res.data.forEach(item => {
             switch (item.type) {
               case 1:
@@ -95,7 +93,7 @@ export default {
             }
             item.createAt = this.$moment(item.createAt).format('YYYY-MM-DD HH:mm:ss')
           })
-          if (this.total <= 10 && this.total > 0) {
+          if (this.total > 0 && this.total <= 10) {
             //获取的记录列表撑不满屏
             this.record = this.record.concat(res.data)
             this.loading = false
@@ -103,15 +101,17 @@ export default {
             return
           } else if (this.total === 0) {
             //获取的记录为0
+            this.loading = false
             this.finished = true
             return
-          }
-          //停止加载
-          this.record = this.record.concat(res.data)
-          this.pageNo++
-          this.loading = false
-          if (this.record.length === this.total) {
-            this.finished = true
+          } else {
+            //停止加载
+            this.record = this.record.concat(res.data)
+            this.pageNo++
+            this.loading = false
+            if (this.record.length === this.total) {
+              this.finished = true
+            }
           }
         })
         .catch(err => {
@@ -126,7 +126,7 @@ export default {
         })
         .then(res => {
           this.total = res.data.num
-          console.log(this.total)
+          this.onLoad()
         })
         .catch(err => {
           console.log(err)
@@ -135,7 +135,6 @@ export default {
   },
   created() {
     this.getUserRecordTotal()
-    this.onLoad()
   }
 }
 </script>

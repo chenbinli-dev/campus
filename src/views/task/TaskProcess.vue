@@ -451,12 +451,12 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 4vw;
-  color: #ffd300;
+  color: black;
 }
 .message_body {
   text-align: center;
   font-size: 4vw;
-  color: #ffd300;
+  color: black;
 }
 .task_number {
   width: 100%;

@@ -88,7 +88,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           //将用户是否有支付密码的状态存入仓库
           if (res.data.pay_password) {
             this.$store.commit('pay_password_status')
@@ -132,7 +132,7 @@ export default {
           params: { to_id: localStorage.getItem('ID') }
         })
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           if (res.data.message === 'HAVE') {
             this.$store.commit('change_showDot_true')
           } else {
@@ -152,7 +152,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           let type = ''
           if (res.data.type === 0) {
             type = '暂时禁用'
