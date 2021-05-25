@@ -200,7 +200,7 @@ export default {
     },
     //提交用户信息的修改
     updateInfo() {
-      console.log(this.userInfo)
+      const userInfo = this.userInfo
       //1.判断用户信息填写,昵称不能为空
       if (!this.userInfo.nickname) {
         this.$toast({
@@ -220,26 +220,32 @@ export default {
           message: '昵称长度过长'
         })
         return
+      } else if (this.userInfo.brithday === '未设置') {
+        userInfo.brithday = null
       }
+      // console.log(userInfo)
       //2.进行用户信息更新
       userRequest
-        .post('/user/updateUserInfo', this.userInfo, {
+        .post('/user/updateUserInfo', userInfo, {
           headers: { Authorization: localStorage.getItem('TOKEN') }
         })
         .then(res => {
           if (res.data.statusCode === 200) {
             this.$toast({
               type: 'success',
-              message: '修改成功'
+              message: '修改成功',
+              onClose: () => {
+                this.$router.back()
+              }
             })
-            this.getUserInfo()
-            this.reload()
           } else {
             this.$toast({
               type: 'warning',
-              message: '修改失败'
+              message: '修改失败',
+              onClose: () => {
+                this.reload()
+              }
             })
-            this.reload()
           }
         })
         .catch(err => {

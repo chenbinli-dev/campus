@@ -54,7 +54,7 @@
         </cell>
         <cell title="任务标题" :value="taskInfo.title" size="large" />
         <cell title="任务描述" :value="taskInfo.description" size="large" />
-        <!--取件码-->
+        <!--身份码-->
         <collapse v-if="taskInfo.type === '代取快递'" v-model="activeName">
           <collapse-item
             title="身份码"
@@ -167,9 +167,21 @@
       </div>
       <!--任务详情脚-->
       <cell-group style="margin-top:2vw;">
-        <cell title="收件人" :value="taskInfo.addressee" size="large" />
-        <cell title="联系电话" :value="taskInfo.telephone" size="large" />
-        <cell title="收件地址" :value="taskInfo.address" size="large" />
+        <cell
+          title="收件人"
+          :value="uid == this.taskInfo.owner_id?taskInfo.addressee:'接取后查看'"
+          size="large"
+        />
+        <cell
+          title="联系电话"
+          :value="uid == this.taskInfo.owner_id?taskInfo.telephone:'接取后查看'"
+          size="large"
+        />
+        <cell
+          title="收件地址"
+          :value="uid == this.taskInfo.owner_id?taskInfo.address:'接取后查看'"
+          size="large"
+        />
       </cell-group>
 
       <!--任务栏-->
