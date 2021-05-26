@@ -24,7 +24,6 @@ userRequest.interceptors.response.use(response => {
   //处理不同的错误响应码
   return response
 }, error => {
-  console.log(error.response)
   let errorResponse = error.response.data
   let errorMessage = ''
   switch (errorResponse) {

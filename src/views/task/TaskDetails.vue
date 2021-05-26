@@ -23,6 +23,7 @@
             <tag v-else type="danger">超时</tag>
           </template>
         </cell>
+        <cell title="发布时间" size="large">{{taskInfo.createAt}}</cell>
         <cell
           v-if="taskInfo.status === 2 || taskInfo.status === 3"
           title="代跑用户"

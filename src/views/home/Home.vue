@@ -178,7 +178,10 @@ export default {
       }
       Dialog.alert({
         title: '注意',
-        message: '当前信誉分:'+ this.credit_points +'。接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'
+        message:
+          '当前信誉分:' +
+          this.credit_points +
+          '。接取的任务无法取消，不能按时完成任务将影响到您的信誉评分'
       }).then(() => {
         // on close
         this.$router.push('/category')
@@ -200,7 +203,7 @@ export default {
       userRequest
         .get('/user/getUserCreditPoints/' + localStorage.getItem('ID'))
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           this.credit_points = res.data.credit_points
         })
         .catch(err => {

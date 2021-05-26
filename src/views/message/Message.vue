@@ -6,11 +6,9 @@
       </template>
     </nav-bar>
     <van-row v-if="session.length === 0" type="flex" justify="center" class="empty_tips">当前没有会话</van-row>
-    <swipe-cell>
+    <swipe-cell v-for="(item,index) in session" :key="item.user.uid">
       <van-row
         class="messageList"
-        v-for="(item) in session"
-        :key="item.user.uid"
         type="flex"
         justify="space-between"
         @click="$router.push({path:'/chat/',query:{to_id: item.user.uid}})"
@@ -40,7 +38,13 @@
         </van-row>
       </van-row>
       <template #right>
-        <van-button square text="删除" type="danger" class="delete-button" />
+        <van-button
+          square
+          text="删除"
+          type="danger"
+          style="height:100%"
+          @click="removeSession(index)"
+        />
       </template>
     </swipe-cell>
   </div>
@@ -55,7 +59,8 @@ import {
   Image as VanImage,
   button as VanButton,
   Badge,
-  SwipeCell
+  SwipeCell,
+  Dialog
 } from 'vant'
 import userRequest from 'network/http'
 export default {
@@ -82,7 +87,10 @@ export default {
           params: { uid: localStorage.getItem('ID') }
         })
         .then(res => {
-          console.log(res)
+          console.log(res.data)
+          if (res.data.length === 0) {
+            return
+          }
           res.data.forEach(item => {
             //处理显示时间
             switch (this.$moment(item.last_message.send_at).format('YYYY-MM-DD')) {
@@ -133,15 +141,42 @@ export default {
                 break
             }
           })
-          this.session = res.data
+          let UserSesssion = []
+          UserSesssion.unshift({ uid: localStorage.getItem('ID') })
+          UserSesssion.push(res.data)
+          localStorage.setItem('sessionList', JSON.stringify(UserSesssion))
+          this.session = JSON.parse(localStorage.getItem('sessionList'))[1]
         })
         .catch(err => {
           console.log(err)
         })
+    },
+    removeSession(index) {
+      Dialog.confirm({
+        title: '提示',
+        message: '确定删除会话吗？'
+      })
+        .then(() => {
+          this.session.splice(index, 1)
+          let UserSesssion = []
+          UserSesssion.unshift({ uid: localStorage.getItem('ID') })
+          UserSesssion.push(this.session)
+          localStorage.setItem('sessionList', JSON.stringify(UserSesssion))
+        })
+        .catch(() => {
+          Dialog.close()
+        })
     }
   },
   created() {
-    this.getSessionList()
+    if (
+      !localStorage.getItem('sessionList') ||
+      JSON.parse(localStorage.getItem('sessionList'))[0].uid !== localStorage.getItem('ID')
+    ) {
+      this.getSessionList()
+    } else {
+      this.session = JSON.parse(localStorage.getItem('sessionList'))[1]
+    }
   }
 }
 </script>
