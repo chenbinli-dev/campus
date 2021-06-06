@@ -464,7 +464,7 @@ export default {
           } else {
             //密码正确，发布任务
             Toast.loading({
-              duration: 2000,
+              duration: 1000,
               message: '发布任务中',
               forbidClick: true,
               loadingType: 'spinner',

@@ -1,5 +1,5 @@
 <template>
-  <div id="submitInfo">
+  <div id="submitInfo" class="submitInfo">
     <nav-bar title="填写学生信息" class="navbar">
       <template #left>
         <icon name="arrow-left" size="6vw" @click="$router.back()" />
@@ -343,6 +343,12 @@ export default {
 
 <style scoped>
 .navbar {
-  margin-bottom: 2vw;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+.submitInfo {
+  padding-top: 12vw;
 }
 </style>

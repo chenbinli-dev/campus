@@ -28,12 +28,22 @@
       <div class="releaser">
         <div class="releaser_avatar">
           <van-image
+            v-if="releaseUser.avatar_url"
             width="15vw"
             height="15vw"
             radius="50%"
             lazy-load:true
             show-loading
             :src="releaseUser.avatar_url"
+          />
+          <van-image
+            v-else
+            width="15vw"
+            height="15vw"
+            radius="50%"
+            lazy-load:true
+            show-loadings
+            :src="require('../../assets/img/default_avatar.svg')"
           />
         </div>
         <div

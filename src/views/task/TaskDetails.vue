@@ -31,12 +31,22 @@
           class="receiver"
         >
           <van-image
+            v-if="receiveUser.avatar_url"
             width="8vw"
             height="8vw"
             radius="50%"
             lazy-load:true
             show-loading
             :src="receiveUser.avatar_url"
+          />
+          <van-image
+            v-else
+            width="8vw"
+            height="8vw"
+            radius="50%"
+            lazy-load:true
+            show-loadings
+            :src="require('../../assets/img/default_avatar.svg')"
           />
         </cell>
       </cell-group>
@@ -45,12 +55,22 @@
       <cell-group style="margin-top:2vw">
         <cell v-if="taskInfo.owner_id != uid" title="发布用户" size="large">
           <van-image
+            v-if="releaseUser.avatar_url"
             width="8vw"
             height="8vw"
             radius="50%"
             lazy-load:true
             show-loading
             :src="releaseUser.avatar_url"
+          />
+          <van-image
+            v-else
+            width="8vw"
+            height="8vw"
+            radius="50%"
+            lazy-load:true
+            show-loading
+            :src="require('../../assets/img/default_avatar.svg')"
           />
         </cell>
         <cell title="任务标题" :value="taskInfo.title" size="large" />

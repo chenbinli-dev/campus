@@ -111,12 +111,13 @@ export default {
   methods: {
     //获取最新的任务(不包括用户自己发布的任务)
     getTaskList() {
+      console.log(this.type,this.sortord);
       userRequest
         .get('/task/getTaskList', {
           params: { type: this.type, sortord: this.sortord, uid: localStorage.getItem('ID') }
         })
         .then(res => {
-          console.log(res.data[1])
+          console.log(res.data[0])
           if (res.data[0].length === 0) {
             //没有对应的任务
             Toast({
@@ -128,7 +129,7 @@ export default {
               }
             })
           } else {
-            this.task = this.task.concat(res.data[0].reverse())
+            this.task = this.task.concat(res.data[0])
             this.taskListLoading = false
             if (this.task.length === res.data[1][0].num) {
               this.taskListFinished = true
@@ -164,12 +165,15 @@ export default {
   left: 0;
   right: 0;
   top: 0;
+  z-index: 999;
 }
 .dropdown {
+  position: fixed;
   width: 100%;
+  z-index: 999;
 }
 .taskList {
-  padding-top: 2vw;
+  padding-top: 14vw;
   height: 100%;
 }
 .taskItem {
